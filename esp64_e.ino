@@ -31,9 +31,9 @@ AudioPlaySystem audio;
 //  } 
 //}
 //
-//static void input_task(void *args)
-//{
-//  while(true) {
+static void input_task(void *args)
+{
+  while(true) {
 //    if ((emu_ReadKeys() & (MASK_KEY_USER1+MASK_KEY_USER2)) == (MASK_KEY_USER1+MASK_KEY_USER2)) {  
 //      printf("rebooting\n");
 //      esp_restart();    
@@ -47,12 +47,12 @@ AudioPlaySystem audio;
 //    else {
 //      emu_Input(bClick);
 //    }
-//#ifdef HAS_SND      
-//    audio.step();
-//#endif  
-//    vTaskDelay(20 / portTICK_PERIOD_MS);
-//  } 
-//}
+#ifdef HAS_SND      
+    audio.step();
+#endif  
+    vTaskDelay(1);
+  } 
+}
 
 //static void main_step() {
 ////  if (menuActive()) {
@@ -93,7 +93,7 @@ void setup(void)
   #endif  
 
  c64_Init();
-
+ xTaskCreatePinnedToCore(input_task, "inputthread", 4096, NULL, 2, NULL, 0);
 //  xTaskCreatePinnedToCore(spi_task, "spithread", 4096, NULL, 1, NULL, 0);
   //vTaskPrioritySet(NULL, tskIDLE_PRIORITY+1);     
 }

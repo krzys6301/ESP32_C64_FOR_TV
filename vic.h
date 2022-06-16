@@ -75,8 +75,8 @@ struct tvic {
   uint8_t * bitmapPtr;
   uint16_t videomatrix;
 
-  uint16_t colors[15]; // translated ([palette]) colors
-  uint16_t palette[16];
+  uint8_t colors[15]; // translated ([palette]) colors
+  uint8_t palette[16];
 
   MyIntervalTimer lineClock;
 
