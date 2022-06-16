@@ -5,9 +5,9 @@
 //#define INVY        1
 #define HAS_SND     1
 #define CUSTOM_SND  1
-#define HAS_I2CKBD  1
-#define USE_WIRE    1
-
+//#define HAS_I2CKBD  1
+//#define USE_WIRE    1
+//#define portTICK_PERIOD_MS 2;
 
 // Title:     <                                        >
 #define TITLE "               C64 Emulator             "

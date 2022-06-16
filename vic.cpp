@@ -69,7 +69,7 @@
 #define BORDER_LEFT           0
 #define BORDER_RIGHT          0
 
-typedef uint16_t tpixel;
+typedef uint8_t tpixel;
 
 #define MAXCYCLESSPRITES0_2       3
 #define MAXCYCLESSPRITES3_7       5

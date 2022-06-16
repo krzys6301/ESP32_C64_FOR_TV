@@ -33,7 +33,7 @@ static void oneRasterLine(void) {
       cia2_checkRTCAlarm();
     }
 
-    //Switch "ExactTiming" Mode off after a while:
+//    Switch "ExactTiming" Mode off after a while:
     if (!cpu.exactTiming) break;
     if (get_ccount() - cpu.exactTimingStartTime >= EXACTTIMINGDURATION * (F_CPU / 1000)) {
     cpu_disableExactTiming();

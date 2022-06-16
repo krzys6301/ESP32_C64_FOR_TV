@@ -24,6 +24,10 @@ Display::Display(void)//uint8_t cs, uint8_t dc, uint8_t rst, uint8_t mosi, uint8
 }
 
 esp_pm_lock_handle_t powerManagementLock;
+
+//uint16_t* line = (uint16_t*)heap_caps_malloc(320*1*sizeof(uint16_t), MALLOC_CAP_DMA);
+//uint16_t* line = (uint16_t*)malloc(340*sizeof(uint16_t));
+//blocks[j]= (uint16_t*)heap_caps_malloc(ILI9341_TFTREALWIDTH*lines_per_block*sizeof(uint16_t), MALLOC_CAP_DMA);
 void Display::begin(void)
 {
   //highest clockspeed needed
@@ -34,18 +38,23 @@ void Display::begin(void)
   //initializing DMA buffers and I2S
 
 
-  int xres=320;
+  int xres=340;
   int yres=240;
-// logFreeHeap();
+//// logFreeHeap();
  gb_buffer_vga = (unsigned char**)malloc(yres * sizeof(unsigned char*));
 //    backbuffer = (char**)malloc(yres * sizeof(char*));
     //not enough memory for z-buffer implementation
     //zbuffer = (char**)malloc(yres * sizeof(char*));
 //    gb_buffer_vga[0] = (unsigned char*)malloc(xres);
     for(int y = 0; y < yres; y++)
+//      for(int y = 0; y < yres; y=y+4)
     {
 //      gb_buffer_vga[y] = gb_buffer_vga[0];
       gb_buffer_vga[y] = (unsigned char*)malloc(xres);
+//      gb_buffer_vga[y] = (unsigned char*)line;
+      gb_buffer_vga[y+1] =  gb_buffer_vga[y];
+      gb_buffer_vga[y+2] = gb_buffer_vga[y];
+      gb_buffer_vga[y+3] = gb_buffer_vga[y];
     }
  char** gbuffer= (char**)gb_buffer_vga;
  composite.sendFrameHalfResolution( &gbuffer);
@@ -53,9 +62,10 @@ void Display::begin(void)
 }
 
 //uint16_t * ILI9341_t3DMA::getLineBuffer(int j)
-uint16_t * getLineBuffer(int j)
+uint8_t * Display::getLineBuffer(int j)
 {
 //  uint16_t * block=blocks[j>>6];  
 //  return(&block[(j&0x3F)*ILI9341_TFTREALWIDTH]);
-  return (uint16_t*) gb_buffer_vga[j];
+//  return (uint16_t*) line;
+  return (uint8_t*) gb_buffer_vga[j];
 }

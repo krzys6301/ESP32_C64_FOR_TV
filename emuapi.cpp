@@ -239,7 +239,7 @@ static void readCallibration(void)
   else {
     printf("Callibration read error\n");
   }  
-  tft.callibrateTouch(calMinX,calMinY,calMaxX,calMaxY);   
+//  tft.callibrateTouch(calMinX,calMinY,calMaxX,calMaxY);   
 }
 
 static void writeCallibration(void) 
@@ -521,62 +521,70 @@ void emu_init(void)
   printf("SD initialized, files found: %d\n",nbFiles);
 
  
-  tft.touchBegin();
+//  tft.touchBegin();
   //uint16_t xt=0;
   //uint16_t yt=0;
   //uint16_t zt=0;  
   //tft.readRo(&xt,&yt,&zt);
 
-
-  emu_InitJoysticks();
-  readCallibration();
+printf("emu_InitJoysticks START");    
+//  emu_InitJoysticks();
+//  readCallibration();
+printf("emu_InitJoysticks END");    
+vTaskDelay(100);
+  calMinX=1;
+  calMinY=1;
+  calMaxX=320;
+  calMaxY=240;
   
-  if ((tft.isTouching()) || (emu_ReadKeys() & MASK_JOY2_BTN) ) {
-    callibrationInit();
-  } else  {
-    toggleMenu(true);
-  }
+//  if ((tft.isTouching()) || (emu_ReadKeys() & MASK_JOY2_BTN) ) {
+//    callibrationInit();
+//  } else  {
+//    toggleMenu(true);
+//  }
 
-#ifdef HAS_I2CKBD
-  uint8_t msg[7]={0,0,0,0,0,0,0};
-  
-#ifdef USE_WIRE
-  Wire.begin(I2C_SDA_IO, I2C_SCL_IO);
-  Wire.requestFrom(8, 7, I2C_FREQ_HZ);  // request 5 bytes from slave device #8 
-  int i = 0;
-  int hitindex=-1;
-  while (Wire.available() && (i<7) ) { // slave may send less than requested
-    uint8_t b = Wire.read(); // receive a byte
-    if (b != 0xff) hitindex=i; 
-    msg[i++] = b;        
-  }  
-#else
-  int i2c_master_port = I2C_NUM_1;
-  i2c_config_t conf;
-  conf.mode = I2C_MODE_MASTER;
-  conf.sda_io_num = I2C_SDA_IO;
-  conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
-  conf.scl_io_num = I2C_SCL_IO;
-  conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
-  conf.master.clk_speed = I2C_FREQ_HZ;
-  i2c_param_config((i2c_port_t)i2c_master_port, &conf);
-  if (i2c_driver_install((i2c_port_t)i2c_master_port, conf.mode,0, 0, 0) != ESP_OK)
-    printf("I2C Failed initialized\n");
-  
-  if (i2c_master_read_slave_reg( I2C_NUM_1, 8, &msg[0], 7 ) != ESP_OK) 
-      printf("I2C Failed \n");    
-#endif  
-
-
-
-
-  if ( (msg[0] == 0xff) && (msg[1] == 0xff) && 
-       (msg[2] == 0xff) && (msg[3] == 0xff) && 
-       (msg[4] == 0xff) && (msg[5] == 0xff) && (msg[6] == 0xff)) {
-    i2cKeyboardPresent = true;
-    printf("i2C keyboard found\n");            
-  }
-#endif 
+//#ifdef HAS_I2CKBD
+//  uint8_t msg[7]={0,0,0,0,0,0,0};
+//    
+//  #ifdef USE_WIRE
+//    Wire.begin(I2C_SDA_IO, I2C_SCL_IO);
+//    Wire.requestFrom(8, 7, I2C_FREQ_HZ);  // request 5 bytes from slave device #8 
+//    int i = 0;
+//    int hitindex=-1;
+//    while (Wire.available() && (i<7) ) { // slave may send less than requested
+//      uint8_t b = Wire.read(); // receive a byte
+//      if (b != 0xff) hitindex=i; 
+//      msg[i++] = b;        
+//    }  
+//  #else
+//    int i2c_master_port = I2C_NUM_1;
+//    i2c_config_t conf;
+//    conf.mode = I2C_MODE_MASTER;
+//    conf.sda_io_num = I2C_SDA_IO;
+//    conf.sda_pullup_en = GPIO_PULLUP_ENABLE;
+//    conf.scl_io_num = I2C_SCL_IO;
+//    conf.scl_pullup_en = GPIO_PULLUP_ENABLE;
+//    conf.master.clk_speed = I2C_FREQ_HZ;
+//    i2c_param_config((i2c_port_t)i2c_master_port, &conf);
+//    if (i2c_driver_install((i2c_port_t)i2c_master_port, conf.mode,0, 0, 0) != ESP_OK)
+//      printf("I2C Failed initialized\n");
+//    
+//    if (i2c_master_read_slave_reg( I2C_NUM_1, 8, &msg[0], 7 ) != ESP_OK) 
+//        printf("I2C Failed \n");    
+//  #endif  
+//
+//
+//
+//
+//  if ( (msg[0] == 0xff) && (msg[1] == 0xff) && 
+//       (msg[2] == 0xff) && (msg[3] == 0xff) && 
+//       (msg[4] == 0xff) && (msg[5] == 0xff) && (msg[6] == 0xff)) {
+//    i2cKeyboardPresent = true;
+//    printf("i2C keyboard found\n");            
+//  }
+//#endif 
+printf("emu_init END");    
+vTaskDelay(100);
 }
 
 
@@ -734,8 +742,8 @@ int emu_LoadFileSeek(char * filename, char * buf, int size, int seek)
 static int keypadval=0; 
 static bool joySwapped = false;
 static uint16_t bLastState;
-static int xRef;
-static int yRef;
+static int xRef=1;
+static int yRef=1;
 
 int emu_ReadAnalogJoyX(int min, int max) 
 {
@@ -1075,4 +1083,3 @@ void emu_sndPlayBuzz(int size, int val) {
   //mymixer.buzz(size,val);  
 }
 #endif
-

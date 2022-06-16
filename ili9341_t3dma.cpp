@@ -662,5 +662,3 @@ void ILI9341_t3DMA::readCal(uint16_t * oX, uint16_t * oY, uint16_t * oZ){
 void ILI9341_t3DMA::callibrateTouch(uint16_t xMin,uint16_t yMin,uint16_t xMax,uint16_t yMax){
    
 }
-
-

@@ -15,7 +15,7 @@ class Display
 //    void refreshFinish(void);
     //void stop();
     //void wait(void);  
-  uint16_t * getLineBuffer(int j);
+  uint8_t * getLineBuffer(int j);
 
 //    void fillScreen(uint16_t color);
 //    void writeScreen(int width, int height, int stride, uint8_t *buffer, uint16_t *palette16);

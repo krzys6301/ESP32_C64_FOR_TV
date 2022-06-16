@@ -397,5 +397,3 @@ void resetCia1(void) {
 	//digitalWriteFast(PIN_SERIAL_SRQ, 1);
 	//attachInterrupt(digitalPinToInterrupt(PIN_SERIAL_SRQ), cia1FLAG, FALLING);
 }
-
-

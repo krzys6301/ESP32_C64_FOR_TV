@@ -57,8 +57,27 @@
 /* chose one of these palettes:
    VGA is 256 colors only (rrrgggbb) , subtle differences might not be visible
 */
+#if 1 //
+static const uint8_t palette[16] = {
+ 0x00,//0 BLACK
+ 0x0F,//1 WHITE
+ 0x42,//2 RED
+ 0xA3,//3 CYAN
+ 0x62,//4 MAGENTA
+ 0xD4,//5 GREEN
+ 0x80,//6 DARK BLUE
+ 0x27,//7 YELLOW
+ 0xF3,//8 LIGHT BROWN
+ 0xF2,//9 DARK BROWN
+ 0x45,//10 LIGHT RED
+ 0x02,//11 DARK GRAY
+ 0x04,//12 MEDIUM GRAY
+ 0x16,//13 LIGHT GREEN
+ 0x85,//14 LIGHT BLUE
+ 0x06 //15 LIGHT GRAY
+};
 
-#if 1 // "Deekay" (default)
+#elif 0 // "Deekay" (default)
 static const uint16_t palette[16] = {
 	PALETTE(0x00,0x00,0x00), PALETTE(0xff,0xff,0xff), PALETTE(0x88,0x20,0x00), PALETTE(0x68,0xd0,0xa8), // black, white, red, cyan,
 	PALETTE(0xa8,0x38,0xa0), PALETTE(0x50,0xb8,0x18), PALETTE(0x18,0x10,0x90), PALETTE(0xf0,0xe8,0x58), // purple, green, blue, yellow

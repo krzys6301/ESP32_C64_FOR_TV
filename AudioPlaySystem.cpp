@@ -6,7 +6,7 @@ extern "C" {
 #include "AudioPlaySystem.h"
 #include "esp_system.h"
 
-#define USE_I2S 1
+//#define USE_I2S 1
 
 #ifdef USE_I2S
 #include "esp_event.h"
@@ -286,5 +286,3 @@ void AudioPlaySystem::step(void)
 #endif    
 }
 #endif
-
-
