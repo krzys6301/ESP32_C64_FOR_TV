@@ -7,16 +7,18 @@ extern "C" {
 
 #include "esp_event.h"
 
+
 #include "keyboard_osd.h"
-#include "ili9341_t3dma.h"
+//#include "ili9341_t3dma.h"
 #ifdef HAS_SND
 #include "AudioPlaySystem.h"
 #endif
 
 #include "c64.h"
 
+#include "display.h"
 
-ILI9341_t3DMA tft = ILI9341_t3DMA(PIN_NUM_CS, PIN_NUM_DC, -1, PIN_NUM_MOSI, PIN_NUM_CLK, PIN_NUM_MISO, TPIN_NUM_CS, TPIN_NUM_IRQ);
+Display tft = Display();//PIN_NUM_CS, PIN_NUM_DC, -1, PIN_NUM_MOSI, PIN_NUM_CLK, PIN_NUM_MISO, TPIN_NUM_CS, TPIN_NUM_IRQ);
 #ifdef HAS_SND
 AudioPlaySystem audio;
 #endif
@@ -24,7 +26,7 @@ AudioPlaySystem audio;
 static void spi_task(void *args)
 {
   while(true) {
-    tft.refresh();
+//    tft.refresh();
   } 
 }
 
@@ -62,7 +64,7 @@ static void main_step() {
       audio.start();
 #endif                 
       toggleMenu(false); 
-      tft.fillScreenNoDma( RGBVAL16(0x00,0x00,0x00) );
+//      tft.fillScreenNoDma( RGBVAL16(0x00,0x00,0x00) );
       xTaskCreatePinnedToCore(input_task, "inputthread", 4096, NULL, 2, NULL, 0);
       emu_Init(filename);        
     }       
@@ -79,9 +81,9 @@ void setup(void)
   printf("Starting emulator\n");
   
 	tft.begin();
-	tft.flipscreen(true);  
-	tft.start();
-	tft.refresh();
+//	tft.flipscreen(true);  
+//	tft.start();
+//	tft.refresh();
  
 	emu_init(); 
 
