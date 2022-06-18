@@ -15,7 +15,7 @@ extern "C" {
 
 #include "c64.h"
 
-#include "ili9341_t3dma.h"
+//#include "ili9341_t3dma.h"
 //ILI9341_t3DMA tft = ILI9341_t3DMA(PIN_NUM_CS, PIN_NUM_DC, -1, PIN_NUM_MOSI, PIN_NUM_CLK, PIN_NUM_MISO, TPIN_NUM_CS, TPIN_NUM_IRQ);
 
 #include "display.h"
@@ -102,9 +102,7 @@ void loop(void)
 {
   unsigned long t = esp_timer_get_time();
   c64_Step();
-  #ifdef HAS_SND      
-      audio.step();
-  #endif  
+//  
 //  main_step();
 //  printf("%d\n",(int)((esp_timer_get_time()-t)/1000));  
 } 
