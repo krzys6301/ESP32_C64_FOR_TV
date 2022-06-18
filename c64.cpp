@@ -125,9 +125,9 @@ static bool setKey(uint32_t k) {
 	kbdData.kv = (k << 16);
 	kbdData.ke = kbdData.k2;
 	kbdData.k2 = 0;
-	vTaskDelay(20 / portTICK_PERIOD_MS); 
+	vTaskDelay(50 / portTICK_PERIOD_MS); 
 	kbdData.kv = 0;  
-	vTaskDelay(20 / portTICK_PERIOD_MS);   
+	vTaskDelay(50 / portTICK_PERIOD_MS);   
 	return true;
 }
 
@@ -278,6 +278,11 @@ void c64_Input(int bClick) {
     pushStringToTextEntry("RUN");
     setKey(ascii2scan[13]);  
   }
+}
+
+void c64_Type(char* text) { 
+    pushStringToTextEntry(text);
+    setKey(ascii2scan[13]);  
 }
 
 #ifdef HAS_SND      

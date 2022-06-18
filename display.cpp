@@ -43,7 +43,8 @@ void Display::begin(void)
   //initializing DMA buffers and I2S
 
 
-  int xres=340;
+//  int xres=340;
+  int xres=336; // max of the composite out
   int yres=240;
 //// logFreeHeap();
  gb_buffer_vga = (unsigned char**)malloc(yres * sizeof(unsigned char*));

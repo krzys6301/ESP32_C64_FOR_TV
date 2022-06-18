@@ -12,8 +12,8 @@ extern "C" {
 
 #include "ili9341_t3dma.h"
 //#include "logo.h"
-#include "bmpjoy.h"
-#include "bmpvbar.h"
+//#include "bmpjoy.h"
+//#include "bmpvbar.h"
 
 #include "esp_event.h"
 #include "esp_vfs_fat.h"
@@ -208,7 +208,7 @@ void toggleMenu(bool on) {
     menuRedraw=true;  
     tft.fillScreenNoDma(RGBVAL16(0x00,0x00,0x00));
     tft.drawTextNoDma(0,0, TITLE, RGBVAL16(0x00,0xff,0xff), RGBVAL16(0x00,0x00,0xff), true);  
-    tft.drawSpriteNoDma(MENU_VBAR_XOFFSET,MENU_VBAR_YOFFSET,(uint16_t*)bmpvbar);
+//    tft.drawSpriteNoDma(MENU_VBAR_XOFFSET,MENU_VBAR_YOFFSET,(uint16_t*)bmpvbar);
   } else {
     menuOn = false;    
   }
@@ -443,7 +443,7 @@ int handleMenu(uint16_t bClick)
     }
     closedir(dir);
     
-    tft.drawSpriteNoDma(0,MENU_JOYS_YOFFSET,(uint16_t*)bmpjoy);  
+//    tft.drawSpriteNoDma(0,MENU_JOYS_YOFFSET,(uint16_t*)bmpjoy);  
     tft.drawTextNoDma(48,MENU_JOYS_YOFFSET+8, (emu_SwapJoysticks(1)?(char*)"SWAP=1":(char*)"SWAP=0"), RGBVAL16(0x00,0xff,0xff), RGBVAL16(0xff,0x00,0x00), false);
 
     menuRedraw=false;     
