@@ -7,6 +7,7 @@ class Display
     //static uint16_t * getFrameBuffer(void);
 
     void begin(void);
+    void end(void);
 //    void flipscreen(bool flip);
 //    bool isflipped(void);
 //    void start(void);
