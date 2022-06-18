@@ -408,7 +408,7 @@ void configureWebServer() {
     String logmessage = "Client:" + request->client()->remoteIP().toString() + " " + request->url();
 
     if (checkUserWebAuth(request)) {
-      request->send(200, "text/html", reboot_html);
+      request->send(200, "text/html");
       logmessage += " Auth: Success";
       Serial.println(logmessage);
       shouldReboot = true;

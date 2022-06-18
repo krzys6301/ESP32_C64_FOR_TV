@@ -14,10 +14,16 @@ const char index_html[] PROGMEM = R"rawliteral(
   <button onclick="rebootButton()">Reboot</button>
   <button onclick="listFilesButton()">List Files</button>
   <button onclick="showUploadButtonFancy()">Upload File</button>
+  <button onclick="run()">Run file</button>
+  <button onclick="list()">List file</button>
   </p>
   <p id="status"></p>
   <p id="detailsheader"></p>
   <p id="details"></p>
+  <br>
+  <textarea id="c64consoleTA" name="C64 console" rows="25" cols="40">
+  </textarea>
+  <button onclick="sendTA()">send console output</button>
 <script>
 function logoutButton() {
   var xhr = new XMLHttpRequest();
@@ -26,7 +32,7 @@ function logoutButton() {
   setTimeout(function(){ window.open("/logged-out","_self"); }, 1000);
 }
 function rebootButton() {
-  document.getElementById("statusdetails").innerHTML = "Invoking Reboot ...";
+//  document.getElementById("statusdetails").innerHTML = "Invoking Reboot ...";
   var xhr = new XMLHttpRequest();
   xhr.open("GET", "/reboot", true);
   xhr.send();
@@ -85,6 +91,23 @@ function uploadFile() {
   ajax.open("POST", "/");
   ajax.send(formdata);
 }
+function run() {
+ xmlhttp=new XMLHttpRequest();
+ xmlhttp.open("GET", "/type?text=RUN", false);
+ xmlhttp.send();
+}
+function list() {
+ xmlhttp=new XMLHttpRequest();
+ xmlhttp.open("GET", "/type?text=LIST", false);
+ xmlhttp.send();
+}
+//sendTA()
+function sendTA() {
+  var x = document.getElementById("c64consoleTA").value; 
+ xmlhttp=new XMLHttpRequest();
+ xmlhttp.open("GET", "/type?text="+encodeURIComponent(x), false);
+ xmlhttp.send();
+}
 function progressHandler(event) {
   //_("loaded_n_total").innerHTML = "Uploaded " + event.loaded + " bytes of " + event.total; // event.total doesnt show accurate total file size
   _("loaded_n_total").innerHTML = "Uploaded " + event.loaded + " bytes";
@@ -129,30 +152,30 @@ const char logout_html[] PROGMEM = R"rawliteral(
 </html>
 )rawliteral";
 
-// reboot.html base upon https://gist.github.com/Joel-James/62d98e8cb3a1b6b05102
-const char reboot_html[] PROGMEM = R"rawliteral(
-<!DOCTYPE HTML>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-</head>
-<body>
-<h3>
-  Rebooting, returning to main page in <span id="countdown">30</span> seconds
-</h3>
-<script type="text/javascript">
-  var seconds = 20;
-  function countdown() {
-    seconds = seconds - 1;
-    if (seconds < 0) {
-      window.location = "/";
-    } else {
-      document.getElementById("countdown").innerHTML = seconds;
-      window.setTimeout("countdown()", 1000);
-    }
-  }
-  countdown();
-</script>
-</body>
-</html>
-)rawliteral";
+//// reboot.html base upon https://gist.github.com/Joel-James/62d98e8cb3a1b6b05102
+//const char reboot_html[] PROGMEM = R"rawliteral(
+//<!DOCTYPE HTML>
+//<html lang="en">
+//<head>
+//  <meta charset="UTF-8">
+//</head>
+//<body>
+//<h3>
+//  Rebooting, returning to main page in <span id="countdown">10</span> seconds
+//</h3>
+//<script type="text/javascript">
+//  var seconds = 20;
+//  function countdown() {
+//    seconds = seconds - 1;
+//    if (seconds < 0) {
+//      window.location = "/";
+//    } else {
+//      document.getElementById("countdown").innerHTML = seconds;
+//      window.setTimeout("countdown()", 1000);
+//    }
+//  }
+//  countdown();
+//</script>
+//</body>
+//</html>
+//)rawliteral";
