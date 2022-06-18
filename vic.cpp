@@ -623,7 +623,6 @@ void mode2 (tpixel *p, const tpixel *pe, uint16_t *spl, const uint16_t vc) {
   }
   while (x<40) {BADLINE(x); x++;}
 }
-/*****************************************************************************************************/
 void mode3 (tpixel *p, const tpixel *pe, uint16_t *spl, const uint16_t vc) {
   /*
     Multicolor-Bitmap-Modus (ECM/BMM/MCM=0/1/1)
@@ -1828,6 +1827,8 @@ noDisplayIncRC:
 /*****************************************************************************************************/
 void fastFillLineNoSprites(tpixel * p, const tpixel * pe, const uint16_t col) {
   int i = 0;
+
+//  col = (col&0x0F)|((col&0x0F)<<4)
 
   while (p < pe) {
 		*p++ = col;

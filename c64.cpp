@@ -26,7 +26,7 @@ static void oneRasterLine(void) {
   } else {
     vic_do_simple();
   }
-
+tft.eol();
     if (--lc == 0) {
       lc = LINEFREQ / 10; // 10Hz
       cia1_checkRTCAlarm();
@@ -40,7 +40,7 @@ static void oneRasterLine(void) {
       break;
     }
   };
-
+  
 }
 
 const uint32_t ascii2scan[] = {

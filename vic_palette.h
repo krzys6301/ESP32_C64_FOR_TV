@@ -60,22 +60,42 @@
 #if 1 //
 static const uint8_t palette[16] = {
  0x00,//0 BLACK
- 0x0F,//1 WHITE
- 0x42,//2 RED
- 0xA3,//3 CYAN
- 0x62,//4 MAGENTA
- 0xD4,//5 GREEN
- 0x80,//6 DARK BLUE
- 0x27,//7 YELLOW
- 0xF3,//8 LIGHT BROWN
- 0xF2,//9 DARK BROWN
- 0x45,//10 LIGHT RED
- 0x02,//11 DARK GRAY
- 0x04,//12 MEDIUM GRAY
- 0x16,//13 LIGHT GREEN
- 0x85,//14 LIGHT BLUE
- 0x06 //15 LIGHT GRAY
+ 0x01,//1 WHITE
+ 0x02,//2 RED
+ 0x03,//3 CYAN
+ 0x04,//4 MAGENTA
+ 0x05,//5 GREEN
+ 0x06,//6 DARK BLUE
+ 0x07,//7 YELLOW
+ 0x08,//8 LIGHT BROWN
+ 0x09,//9 DARK BROWN
+ 0x0A,//10 LIGHT RED
+ 0x0B,//11 DARK GRAY
+ 0x0C,//12 MEDIUM GRAY
+ 0x0D,//13 LIGHT GREEN
+ 0x0E,//14 LIGHT BLUE
+ 0x0F //15 LIGHT GRAY
 };
+
+
+//static const uint8_t palette[16] = {
+// 0x00,//0 BLACK
+// 0x0F,//1 WHITE
+// 0x42,//2 RED
+// 0xA3,//3 CYAN
+// 0x62,//4 MAGENTA
+// 0xD4,//5 GREEN
+// 0x80,//6 DARK BLUE
+// 0x27,//7 YELLOW
+// 0xF3,//8 LIGHT BROWN
+// 0xF2,//9 DARK BROWN
+// 0x45,//10 LIGHT RED
+// 0x02,//11 DARK GRAY
+// 0x04,//12 MEDIUM GRAY
+// 0x16,//13 LIGHT GREEN
+// 0x85,//14 LIGHT BLUE
+// 0x06 //15 LIGHT GRAY
+//};
 
 #elif 0 // "Deekay" (default)
 static const uint16_t palette[16] = {

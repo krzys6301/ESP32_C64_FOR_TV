@@ -29,10 +29,13 @@ Display::Display(void)//uint8_t cs, uint8_t dc, uint8_t rst, uint8_t mosi, uint8
 }
 
 esp_pm_lock_handle_t powerManagementLock;
-
+int xres=340;
+int yres=240;
+int lineNum=0;
 //uint16_t* line = (uint16_t*)heap_caps_malloc(320*1*sizeof(uint16_t), MALLOC_CAP_DMA);
 //uint16_t* line = (uint16_t*)malloc(340*sizeof(uint16_t));
 //blocks[j]= (uint16_t*)heap_caps_malloc(ILI9341_TFTREALWIDTH*lines_per_block*sizeof(uint16_t), MALLOC_CAP_DMA);
+uint8_t* line = (uint8_t*)(unsigned char*)malloc(xres);
 void Display::begin(void)
 {
   //highest clockspeed needed
@@ -43,11 +46,11 @@ void Display::begin(void)
   //initializing DMA buffers and I2S
 
 
-//  int xres=340;
-  int xres=336; // max of the composite out
+  int xres=340;
+//  int xres=336; // max of the composite out
   int yres=240;
 //// logFreeHeap();
- gb_buffer_vga = (unsigned char**)malloc(yres * sizeof(unsigned char*));
+ gb_buffer_vga = (unsigned char**)malloc(yres* sizeof(uint8_t*));
 //    backbuffer = (char**)malloc(yres * sizeof(char*));
     //not enough memory for z-buffer implementation
     //zbuffer = (char**)malloc(yres * sizeof(char*));
@@ -56,7 +59,7 @@ void Display::begin(void)
 //      for(int y = 0; y < yres; y=y+4)
     {
 //      gb_buffer_vga[y] = gb_buffer_vga[0];
-      gb_buffer_vga[y] = (unsigned char*)malloc(xres);
+      gb_buffer_vga[y] = (unsigned char*)malloc(xres/2);
 //      gb_buffer_vga[y] = (unsigned char*)line;
 //      gb_buffer_vga[y+1] =  gb_buffer_vga[y];
 //      gb_buffer_vga[y+2] = gb_buffer_vga[y];
@@ -70,10 +73,26 @@ void Display::begin(void)
 //uint16_t * ILI9341_t3DMA::getLineBuffer(int j)
 uint8_t * Display::getLineBuffer(int j)
 {
+  lineNum=j;
 //  uint16_t * block=blocks[j>>6];  
 //  return(&block[(j&0x3F)*ILI9341_TFTREALWIDTH]);
 //  return (uint16_t*) line;
-  return (uint8_t*) gb_buffer_vga[j];
+  return line;//(uint8_t*) gb_buffer_vga[j];
+}
+
+void Display::eol() {
+//  uint8_t** lines = (uint8_t**) *&gb_buffer_vga;
+//  uint8_t* l = (uint8_t*) lines[lineNum];
+
+  uint8_t* l = (uint8_t*) gb_buffer_vga[lineNum];
+  // rewrite the "full line (aka 8bit per pixel)" into 4-BIT color format;
+  uint8_t* p = line;
+  for (int n=0; n<(xres/2);n++) {
+//      Serial.println(l[n]);
+
+//    l[n] = 6;//l[n];  
+      *l++ = *p++|*p++<<4;
+  }
 }
 
 void Display::end(void)
@@ -98,8 +117,8 @@ void Display::end(void)
          dac_output_disable(DAC_CHANNEL_1);    
 
 
-//  int xres=384;
   int yres=240;
+
 // gb_buffer_vga = (unsigned char**)malloc(yres * sizeof(unsigned char*));
 //    backbuffer = (char**)malloc(yres * sizeof(char*));
     //not enough memory for z-buffer implementation
