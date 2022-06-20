@@ -28,6 +28,7 @@
 #define VIDEO_PIN   26
 #define AUDIO_PIN   18  // can be any pin
 //#define IR_PIN      0   // TSOP4838 or equivalent on any pin if desired
+//#define SUPPORT_AUDIO 1
 
 #include "esp_types.h"
 #include "esp_heap_caps.h"
@@ -769,9 +770,9 @@ static const uint8_t palette[16] = {
 //        }
 
         for (i = 0; i < 336-8; i += 8) {
-            uint32_t c = *((uint32_t*)src); // screen may be in 32 bit mem
-            d[0] = p[(uint8_t)(palette[c&0x0000000F])];
-            d[1] = p[(uint8_t)(palette[(c&0x000000F0)>>4])] << 8; // becuase we store 16, bit
+            uint32_t c = *((uint32_t*)src); // read 32 bit for performance
+            d[0] = p[(uint8_t)(palette[(c&0x0000000F)])];
+            d[1] = p[(uint8_t)(palette[(c&0x000000F0)>>4])] << 8; // why every second move by 8 left??? 
             d[2] = p[(uint8_t)(palette[(c&0x00000F00)>>8])];
             d[3] = p[(uint8_t)(palette[(c&0x0000F000)>>12])] << 8;
             d[4] = p[(uint8_t)(palette[(c&0x000F0000)>>16])];
