@@ -36,7 +36,7 @@ function rebootButton() {
   var xhr = new XMLHttpRequest();
   xhr.open("GET", "/reboot", true);
   xhr.send();
-  window.open("/reboot","_self");
+//  window.open("/reboot","_self");
 }
 function listFilesButton() {
   xmlhttp=new XMLHttpRequest();

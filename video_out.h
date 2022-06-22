@@ -28,7 +28,7 @@
 #define VIDEO_PIN   26
 #define AUDIO_PIN   18  // can be any pin
 //#define IR_PIN      0   // TSOP4838 or equivalent on any pin if desired
-//#define SUPPORT_AUDIO 1
+// #define SUPPORT_AUDIO 1
 
 #include "esp_types.h"
 #include "esp_heap_caps.h"
@@ -391,9 +391,9 @@ void video_init_hw(int line_width, int samples_per_cc)
     //                   |
     //                   v gnd
 
-    ledcSetup(0,2000000,7);    // 625000 khz is as fast as we go w 7 bits
-    ledcAttachPin(AUDIO_PIN, 0);
-    ledcWrite(0,0);
+    // ledcSetup(0,2000000,7);    // 625000 khz is as fast as we go w 7 bits
+    // ledcAttachPin(AUDIO_PIN, 0);
+    // ledcWrite(0,0);
 
     //  IR input if used
 #ifdef IR_PIN
@@ -716,7 +716,7 @@ void video_init(VideoStandard standard)
 // cc == 3 gives 684 samples per line, 3 samples per cc, 3 pixels for 2 cc
 // cc == 4 gives 912 samples per line, 4 samples per cc, 2 pixels per cc
 
-static const uint8_t palette[16] = {
+static const uint8_t DRAM_ATTR palette[16] = {
  0x00,//0 BLACK
  0x0F,//1 WHITE
  0x42,//2 RED

@@ -148,69 +148,69 @@ static void snd_Mixer16(uint16_t *  stream, int len )
   }
 }
 
-#ifdef USE_I2S
-#else
-void IRAM_ATTR onTimer() 
-{ 
-	// Sound playing code, plays whatever's in the buffer continuously. Big change from previous versions
-	if(LastDacValue!=Buffer[NextPlayPos])		// Send value to DAC only of changed since last value else no need
-	{
-		// value to DAC has changed, send to actual hardware, else we just leave setting as is as it's not changed
-		LastDacValue=Buffer[NextPlayPos];
-		dacWrite(DacPin,uint8_t((LastDacValue>>8)+127));			// write out the data
-	}
-	Buffer[NextPlayPos]=0;						// Reset this buffer byte back to silence
-	NextPlayPos++;								// Move play pos to next byte in buffer
-	if(NextPlayPos==BufferSize)					// If gone past end of buffer, 
-		NextPlayPos=0;							// set back to beginning
-}  
-
-#endif
+//#ifdef USE_I2S
+//#else
+//void IRAM_ATTR onTimer() 
+//{ 
+//	// Sound playing code, plays whatever's in the buffer continuously. Big change from previous versions
+//	if(LastDacValue!=Buffer[NextPlayPos])		// Send value to DAC only of changed since last value else no need
+//	{
+//		// value to DAC has changed, send to actual hardware, else we just leave setting as is as it's not changed
+//		LastDacValue=Buffer[NextPlayPos];
+//		dacWrite(DacPin,uint8_t((LastDacValue>>8)+127));			// write out the data
+//	}
+//	Buffer[NextPlayPos]=0;						// Reset this buffer byte back to silence
+//	NextPlayPos++;								// Move play pos to next byte in buffer
+//	if(NextPlayPos==BufferSize)					// If gone past end of buffer, 
+//		NextPlayPos=0;							// set back to beginning
+//}  
+//
+//#endif
 
 void AudioPlaySystem::begin(void)
 {
-#ifdef USE_I2S
-	Buffer = (uint16_t *)malloc(DEFAULT_SAMPLESIZE*4); //16bits, L+R
-	uint16_t * dst=(uint16_t *)Buffer;
-	for (int i=0; i<DEFAULT_SAMPLESIZE; i++) {
-	  *dst++=32767;          
-    *dst++=32767;          
-	};
-
-  i2s_config_t i2s_config;
-  i2s_config.mode = (i2s_mode_t)(I2S_MODE_DAC_BUILT_IN|I2S_MODE_TX|I2S_MODE_MASTER);
-  i2s_config.sample_rate=DEFAULT_SAMPLERATE;
-  i2s_config.bits_per_sample=I2S_BITS_PER_SAMPLE_16BIT;
-  i2s_config.communication_format=I2S_COMM_FORMAT_I2S_MSB;
-  i2s_config.dma_buf_count = 2;
-  i2s_config.dma_buf_len = DEFAULT_SAMPLESIZE;
-  i2s_config.use_apll = false;
-  i2s_config.intr_alloc_flags = ESP_INTR_FLAG_LEVEL1;
-	//i2s_driver_install(I2S_NUM, &i2s_config, 4, &queue);
-  i2s_driver_install(I2S_NUM, &i2s_config, 0, NULL);
-  i2s_set_pin(I2S_NUM, NULL);
-  i2s_set_dac_mode(I2S_DAC_CHANNEL_LEFT_EN); 
-	//I2S enables *both* DAC channels; we only need DAC1.
-	//ToDo: still needed now I2S supports set_dac_mode?
-	//CLEAR_PERI_REG_MASK(RTC_IO_PAD_DAC1_REG, RTC_IO_PDAC1_DAC_XPD_FORCE_M);
-	//CLEAR_PERI_REG_MASK(RTC_IO_PAD_DAC1_REG, RTC_IO_PDAC1_XPD_DAC_M);
-#else
-	BufferSize = DEFAULT_SAMPLESIZE;
-	Buffer=(volatile uint16_t *)malloc(BufferSize*2);
-	volatile uint16_t * dst=Buffer;
-	for (int i=0; i<BufferSize; i++) {
-	  *dst++=0;          
-	};	
-
-	DacPin=25;								// set dac pin to use
-	LastDacValue=0;									// set to mid  point
-	dacWrite(DacPin,LastDacValue);					// Set speaker to mid point, stops click at start of first sound
-	// Set up interrupt routine
-	timer = timerBegin(0, 80, true);        // use timer 0, pre-scaler is 80 (divide by 8000), count up
-	timerAttachInterrupt(timer, &onTimer, true); // P3= edge triggered
-	timerAlarmWrite(timer, 45, true);       // will trigger 22050 times per sec (443 per 20 ms=22050/50)
-	timerAlarmEnable(timer);   	  
-#endif  
+//#ifdef USE_I2S
+//	Buffer = (uint16_t *)malloc(DEFAULT_SAMPLESIZE*4); //16bits, L+R
+//	uint16_t * dst=(uint16_t *)Buffer;
+//	for (int i=0; i<DEFAULT_SAMPLESIZE; i++) {
+//	  *dst++=32767;          
+//    *dst++=32767;          
+//	};
+//
+//  i2s_config_t i2s_config;
+//  i2s_config.mode = (i2s_mode_t)(I2S_MODE_DAC_BUILT_IN|I2S_MODE_TX|I2S_MODE_MASTER);
+//  i2s_config.sample_rate=DEFAULT_SAMPLERATE;
+//  i2s_config.bits_per_sample=I2S_BITS_PER_SAMPLE_16BIT;
+//  i2s_config.communication_format=I2S_COMM_FORMAT_I2S_MSB;
+//  i2s_config.dma_buf_count = 2;
+//  i2s_config.dma_buf_len = DEFAULT_SAMPLESIZE;
+//  i2s_config.use_apll = false;
+//  i2s_config.intr_alloc_flags = ESP_INTR_FLAG_LEVEL1;
+//	//i2s_driver_install(I2S_NUM, &i2s_config, 4, &queue);
+//  i2s_driver_install(I2S_NUM, &i2s_config, 0, NULL);
+//  i2s_set_pin(I2S_NUM, NULL);
+//  i2s_set_dac_mode(I2S_DAC_CHANNEL_LEFT_EN); 
+//	//I2S enables *both* DAC channels; we only need DAC1.
+//	//ToDo: still needed now I2S supports set_dac_mode?
+//	//CLEAR_PERI_REG_MASK(RTC_IO_PAD_DAC1_REG, RTC_IO_PDAC1_DAC_XPD_FORCE_M);
+//	//CLEAR_PERI_REG_MASK(RTC_IO_PAD_DAC1_REG, RTC_IO_PDAC1_XPD_DAC_M);
+//#else
+//	BufferSize = DEFAULT_SAMPLESIZE;
+//	Buffer=(volatile uint16_t *)malloc(BufferSize*2);
+//	volatile uint16_t * dst=Buffer;
+//	for (int i=0; i<BufferSize; i++) {
+//	  *dst++=0;          
+//	};	
+//
+//	DacPin=25;								// set dac pin to use
+//	LastDacValue=0;									// set to mid  point
+//	dacWrite(DacPin,LastDacValue);					// Set speaker to mid point, stops click at start of first sound
+//	// Set up interrupt routine
+//	timer = timerBegin(0, 80, true);        // use timer 0, pre-scaler is 80 (divide by 8000), count up
+//	timerAttachInterrupt(timer, &onTimer, true); // P3= edge triggered
+//	timerAlarmWrite(timer, 45, true);       // will trigger 22050 times per sec (443 per 20 ms=22050/50)
+//	timerAlarmEnable(timer);   	  
+//#endif  
 }
 
 void AudioPlaySystem::start(void)

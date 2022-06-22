@@ -30,6 +30,10 @@
 
 #ifndef play_sid_h_
 #define play_sid_h_
+//#define AUDIO_BLOCK_SAMPLES 443
+#define SAMPLERATE 6000
+//#define SAMPLERATE 6500
+#define CLOCKFREQ 985248
 
 
 class AudioPlaySID
@@ -44,11 +48,13 @@ public:
 	void stop(void);
 	void update(void * stream, int len);	
 	inline bool isPlaying(void) { return playing; }	
+  cycle_count csdelta;
+  SID* sidptr;
 private:
-	cycle_count csdelta;
+	
 	volatile bool playing;
 	SID sid;
-	SID* sidptr;
+	
 };
 
 

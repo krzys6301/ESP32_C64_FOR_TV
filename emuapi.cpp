@@ -1066,20 +1066,20 @@ void * emu_LineBuffer(int line)
 }
 
 #ifdef HAS_SND
-#include "AudioPlaySystem.h"
-extern AudioPlaySystem audio;
+//#include "AudioPlaySystem.h"
+//extern AudioPlaySystem audio;
 
-void emu_sndInit() {
-}
-
-void emu_sndPlaySound(int chan, int volume, int freq)
-{
-  if (chan < 6) {
-    audio.sound(chan, freq, volume); 
-  } 
-}
-
-void emu_sndPlayBuzz(int size, int val) {
-  //mymixer.buzz(size,val);  
-}
+//void emu_sndInit() {
+//}
+//
+//void emu_sndPlaySound(int chan, int volume, int freq)
+//{
+//  if (chan < 6) {
+////    audio.sound(chan, freq, volume); 
+//  } 
+//}
+//
+//void emu_sndPlayBuzz(int size, int val) {
+//  //mymixer.buzz(size,val);  
+//}
 #endif

@@ -17,13 +17,12 @@ static void oneRasterLine(void) {
   static unsigned short lc = 1;
 
   while (true) {
-
     cpu.lineStartTime = get_ccount();
     cpu.lineCycles = cpu.lineCyclesAbs = 0;
 
     if (!cpu.exactTiming) {
     vic_do();
-  } else {
+     } else {
     vic_do_simple();
   }
 tft.eol();
@@ -247,6 +246,7 @@ void c64_Init(void)
   resetCia2();
   resetVic();
   cpu_reset(); 
+//  playSID.begin();
 }
 
 
@@ -285,9 +285,13 @@ void c64_Type(char* text) {
     setKey(ascii2scan[13]);  
 }
 
-#ifdef HAS_SND      
-void  SND_Process( void * stream, int len )
-{
-    playSID.update(stream, len);
+AudioPlaySID c64_PlaySid(void) { 
+    return playSID; 
 }
-#endif  
+//
+//#ifdef HAS_SND      
+//void  SND_Process( void * stream, int len )
+//{
+////    playSID.update(stream, len);
+//}
+//#endif  

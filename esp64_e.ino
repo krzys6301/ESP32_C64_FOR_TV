@@ -21,9 +21,9 @@ extern "C" {
 
 #include "keyboard_osd.h"
 
-#ifdef HAS_SND
-#include "AudioPlaySystem.h"
-#endif
+//#ifdef HAS_SND
+//#include "AudioPlaySystem.h"
+//#endif
 
 #include "c64.h"
 //#include "cpu.h"
@@ -35,14 +35,18 @@ extern "C" {
 //Display
 Display tft = Display();
 //#include "cpu.h"
+//#define BUFFER_SIZE 256
+//unsigned char samples[BUFFER_SIZE];
+volatile unsigned long sampleW=0;
+volatile unsigned long sampleR=0;
 
 
-#ifdef HAS_SND
-AudioPlaySystem audio;
-#endif
+//#ifdef HAS_SND
+//AudioPlaySystem audio;
+//#endif
 
-
-
+#include <soc/rtc_wdt.h>
+#include <soc/rtc.h>
 
 
 
@@ -134,33 +138,33 @@ String humanReadableSize(const size_t bytes) {
 
 
 
-
-
-
-
-
-static void input_task(void *args)
-{
-  while(true) {
-//    if ((emu_ReadKeys() & (MASK_KEY_USER1+MASK_KEY_USER2)) == (MASK_KEY_USER1+MASK_KEY_USER2)) {  
-//      printf("rebooting\n");
-//      esp_restart();    
-//    }
 //
-//    uint16_t bClick = emu_DebounceLocalKeys();
-//    if (bClick & MASK_KEY_USER2) { 
-//      printf("%d\n",emu_SwapJoysticks(1)); 
-//      emu_SwapJoysticks(0);
-//    }
-//    else {
-//      emu_Input(bClick);
-//    }
-#ifdef HAS_SND      
-    audio.step();
-#endif  
-    vTaskDelay(1);
-  } 
-}
+//
+//
+//
+//
+//static void input_task(void *args)
+//{
+//  while(true) {
+////    if ((emu_ReadKeys() & (MASK_KEY_USER1+MASK_KEY_USER2)) == (MASK_KEY_USER1+MASK_KEY_USER2)) {  
+////      printf("rebooting\n");
+////      esp_restart();    
+////    }
+////
+////    uint16_t bClick = emu_DebounceLocalKeys();
+////    if (bClick & MASK_KEY_USER2) { 
+////      printf("%d\n",emu_SwapJoysticks(1)); 
+////      emu_SwapJoysticks(0);
+////    }
+////    else {
+////      emu_Input(bClick);
+////    }
+//#ifdef HAS_SND      
+//    audio.step();
+//#endif  
+//    vTaskDelay(1);
+//  } 
+//}
 
 //static void main_step() {
 ////  if (menuActive()) {
@@ -190,8 +194,8 @@ void setupOTA() {
     .onStart([]() {
     Serial.println("OTA START");
 //    server->end();
-    audio.stop();
-    Serial.println("AUDIO STOPPED");
+//    audio.stop();
+//    Serial.println("AUDIO STOPPED");
     tft.end();
     Serial.println("DISPLAY END");
 //    free(cpu.RAM);
@@ -259,7 +263,74 @@ void setupWiFi_by_manager() {
 }
 
 
+#include <esp32-hal.h> 
 
+
+
+hw_timer_t * timer = NULL; 
+  #define AUDIO_PIN 18
+
+volatile int sampleN=0;
+#include "AudioPlaySID.h"
+#include <esp_task_wdt.h>
+//void IRAM_ATTR onTimer(void * pvParameters) {
+//// esp_task_wdt_init(30, false);
+//  while (true) {
+//    
+////    rtc_wdt_feed();
+//     long start = micros();
+//  
+//     AudioPlaySID playSid = c64_PlaySid();
+//  
+//     cycle_count delta_t = playSid.csdelta;
+//  //   if (playSid.sidptr) {
+//     playSid.sidptr->clock(delta_t);
+//  //    playSid.sidptr->clock();
+//     
+//  //   ledcWrite(0, (unsigned char)();
+//  
+//     ledcWrite(0, (unsigned char)(playSid.sidptr->output()>>8));
+//         sampleN++;
+//       if (sampleN%1000==0) {
+//         vTaskDelay(1);
+//       }
+//     long end = micros();
+//   
+//        delayMicroseconds((1000000/SAMPLERATE) - (start-end));
+//   }
+//  }
+
+
+
+
+void IRAM_ATTR onTimer() {
+
+    AudioPlaySID playSid = c64_PlaySid();
+    cycle_count delta_t = playSid.csdelta;
+    playSid.sidptr->clock(delta_t);
+//    samples[sampleW%BUFFER_SIZE]=(unsigned char)((playSid.sidptr->output()>>8)+127);
+    ledcWrite(0, (unsigned char)((playSid.sidptr->output()>>8)+127));
+  
+//  if (sampleR<sampleW) {
+//      ledcWrite(0, samples[sampleR%BUFFER_SIZE]);
+//      sampleR++;
+//  }
+}
+  
+void setupSound() {
+
+    ledcSetup(0,2000000,8);    // 625000 khz is as fast as we go w 7 bits
+  ledcAttachPin(AUDIO_PIN, 0);
+  ledcWrite(0,0);
+
+//   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, tskIDLE_PRIORITY, NULL, 0);
+//   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, 2, NULL, 0);
+  timer = timerBegin(0, 80, true);                //Begin timer with 1 MHz frequency (80MHz/80)
+  timerAttachInterrupt(timer, &onTimer, true);   //Attach the interrupt to Timer1
+  unsigned int timerFactor = 1000000/SAMPLERATE; //Calculate the time interval between two readings, or more accurately, the number of cycles between two readings
+  timerAlarmWrite(timer, timerFactor, true);      //Initialize the timer
+  timerAlarmEnable(timer); 
+}
 
 
 
@@ -274,6 +345,8 @@ void setupWiFi_by_manager() {
 void setup(void)
 {
   Serial.begin(115200);
+ rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);        
+  
   setupWiFi_by_manager();
   setupOTA();
 //  printf("Starting emulator\n");
@@ -284,31 +357,69 @@ void setup(void)
 //  tft.refresh();
 // 
 //  emu_init(); 
-  #ifdef HAS_SND      
-      audio.begin();
-      audio.start();
-  #endif  
+//  #ifdef HAS_SND      
+//      audio.begin();
+//      audio.start(); 
+//  #endif  
 
  c64_Init();
- xTaskCreatePinnedToCore(input_task, "inputthread", 4096, NULL, 2, NULL, 0);
+// xTaskCreatePinnedToCore(input_task, "inputthread", 4096, NULL, 2, NULL, 0);
 
   logFreeHeap();
    startWebServer();
   logFreeHeap();
 //  xTaskCreatePinnedToCore(spi_task, "spithread", 4096, NULL, 1, NULL, 0);
   //vTaskPrioritySet(NULL, tskIDLE_PRIORITY+1);     
+
+  setupSound();
 }
+long start = 0;
 
 void loop(void)
 {
+  
   ArduinoOTA.handle();
-  unsigned long t = esp_timer_get_time();
-  c64_Step();
+  
+ 
+  for (int n=0; n<10; n++) {
+    c64_Step();
+
+//    AudioPlaySID playSid = c64_PlaySid();
+//    cycle_count delta_t = playSid.csdelta;
+//    playSid.sidptr->clock(delta_t);
+//    samples[sampleW%BUFFER_SIZE]=(unsigned char)((playSid.sidptr->output()>>8)+127);
+
+     
+     sampleW++;
+//     if (sampleW>255) sampleW=0;
+  //   ledcWrite(0, (unsigned char)();
+  
+//     ledcWrite(0, (unsigned char)(playSid.sidptr->output()>>8));
+
+    if (sampleW%1000==0) {
+      int freq = (1000.0/(millis()-start))*1000;
+      start=millis();
+      Serial.printf("sampleW %d SampleR %d freq %d\n", sampleW, sampleR, freq);
+      
+    }
+  }
+
+
+//  timer = timerBegin(0, 80, true);                //Begin timer with 1 MHz frequency (80MHz/80)
+//  timerAttachInterrupt(timer, &c64step, true);   //Attach the interrupt to Timer1
+//  unsigned int timerFactor = 1000000/17000; //Calculate the time interval between two readings, or more accurately, the number of cycles between two readings
+//  timerAlarmWrite(timer, timerFactor, true);      //Initialize the timer
+//  timerAlarmEnable(timer); 
+//  
 //  
 //  main_step();
 //  printf("%d\n",(int)((esp_timer_get_time()-t)/1000));  
 } 
 
+//void c64step() {
+//  unsigned long t = esp_timer_get_time();
+//  c64_Step();
+//}
 
 void logFreeHeap() {
    #ifdef use_lib_log_serial  
@@ -415,7 +526,7 @@ void configureWebServer() {
       request->send(200, "text/html");
       logmessage += " Auth: Success";
       Serial.println(logmessage);
-      shouldReboot = true;
+//      shouldReboot = true;
 
       ESP.restart();
 
@@ -525,6 +636,7 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
         
         
         cpu.RAM[2047+n+index]=data[n];
+        rtc_wdt_feed();
       }
       
     }

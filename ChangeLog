@@ -101,7 +101,7 @@
 	* filter.cc (Filter::set_chip_model): New function; selects voice
 	and mixer DC offsets and mapping from the FC registers to filter
 	cutoff frequency. The voice and mixer DC offsets for the MOS6581 are
-	calculated from	measurements made by Hársfalvi, Levente in
+	calculated from	measurements made by Hï¿½rsfalvi, Levente in
 	C= Hacking Issue #20.
 	(Filter::Filter): Call set_chip_model.
 	(Filter::f0_6581, Filter::f0_8580): Separate FC mapping tables.
@@ -123,7 +123,7 @@
 	introduce points of non-differentiability and discontinuity.
 	
 	* wave.h (WaveformGenerator::output____): No selected waveform
-	yields maximum wave output level. This was found by Hársfalvi,
+	yields maximum wave output level. This was found by Hï¿½rsfalvi,
 	Levente in C= Hacking Issue #20.
 	(WaveformGenerator::clock): Optimized for speed (no division).
 
