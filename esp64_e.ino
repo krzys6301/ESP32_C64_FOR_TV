@@ -264,6 +264,7 @@ void setupWiFi_by_manager() {
 
 
 #include <esp32-hal.h> 
+#include <Arduino.h> 
 
 
 
@@ -273,37 +274,38 @@ hw_timer_t * timer = NULL;
 volatile int sampleN=0;
 #include "AudioPlaySID.h"
 #include <esp_task_wdt.h>
-//void IRAM_ATTR onTimer(void * pvParameters) {
-//// esp_task_wdt_init(30, false);
-//  while (true) {
-//    
-////    rtc_wdt_feed();
-//     long start = micros();
-//  
-//     AudioPlaySID playSid = c64_PlaySid();
-//  
-//     cycle_count delta_t = playSid.csdelta;
-//  //   if (playSid.sidptr) {
-//     playSid.sidptr->clock(delta_t);
-//  //    playSid.sidptr->clock();
-//     
-//  //   ledcWrite(0, (unsigned char)();
-//  
-//     ledcWrite(0, (unsigned char)(playSid.sidptr->output()>>8));
-//         sampleN++;
-//       if (sampleN%1000==0) {
-//         vTaskDelay(1);
-//       }
-//     long end = micros();
-//   
-//        delayMicroseconds((1000000/SAMPLERATE) - (start-end));
-//   }
-//  }
+
+void coreSound(void * pvParameters) {
+ esp_task_wdt_init(30, false);
+  while (true) {
+    
+//    rtc_wdt_feed();
+     long start = micros();
+  
+     AudioPlaySID playSid = c64_PlaySid();
+  
+     cycle_count delta_t = playSid.csdelta;
+  //   if (playSid.sidptr) {
+     playSid.sidptr->clock(delta_t);
+  //    playSid.sidptr->clock();
+     
+  //   ledcWrite(0, (unsigned char)();
+  
+     ledcWrite(0, (unsigned char)((playSid.sidptr->output()>>8)+127));
+         sampleN++;
+       if (sampleN%1000==0) {
+         vTaskDelay(1);
+       }
+     long end = micros();
+   
+        delayMicroseconds(max((int)((1000000/SAMPLERATE) - (end - start)),0));
+   }
+  }
 
 
 
 
-void IRAM_ATTR onTimer() {
+void IRAM_ATTR isrSound() {
 
     AudioPlaySID playSid = c64_PlaySid();
     cycle_count delta_t = playSid.csdelta;
@@ -317,7 +319,7 @@ void IRAM_ATTR onTimer() {
 //  }
 }
   
-void setupSound() {
+void setupSoundTimer() {
 
     ledcSetup(0,2000000,8);    // 625000 khz is as fast as we go w 7 bits
   ledcAttachPin(AUDIO_PIN, 0);
@@ -326,10 +328,25 @@ void setupSound() {
 //   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, tskIDLE_PRIORITY, NULL, 0);
 //   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, 2, NULL, 0);
   timer = timerBegin(0, 80, true);                //Begin timer with 1 MHz frequency (80MHz/80)
-  timerAttachInterrupt(timer, &onTimer, true);   //Attach the interrupt to Timer1
+  timerAttachInterrupt(timer, &isrSound, true);   //Attach the interrupt to Timer1
   unsigned int timerFactor = 1000000/SAMPLERATE; //Calculate the time interval between two readings, or more accurately, the number of cycles between two readings
   timerAlarmWrite(timer, timerFactor, true);      //Initialize the timer
   timerAlarmEnable(timer); 
+}
+
+void setupSoundCore() {
+
+    ledcSetup(0,2000000,8);    // 625000 khz is as fast as we go w 7 bits
+  ledcAttachPin(AUDIO_PIN, 0);
+  ledcWrite(0,0);
+
+   xTaskCreatePinnedToCore(&coreSound, "inputthread", 4096, NULL, 0, NULL, 0);
+//   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, 2, NULL, 0);
+//  timer = timerBegin(0, 80, true);                //Begin timer with 1 MHz frequency (80MHz/80)
+//  timerAttachInterrupt(timer, &onTimer, true);   //Attach the interrupt to Timer1
+//  unsigned int timerFactor = 1000000/SAMPLERATE; //Calculate the time interval between two readings, or more accurately, the number of cycles between two readings
+//  timerAlarmWrite(timer, timerFactor, true);      //Initialize the timer
+//  timerAlarmEnable(timer); 
 }
 
 
@@ -345,43 +362,31 @@ void setupSound() {
 void setup(void)
 {
   Serial.begin(115200);
- rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);        
-  
+// rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);        
   setupWiFi_by_manager();
   setupOTA();
-//  printf("Starting emulator\n");
-//  
   tft.begin();
-//  tft.flipscreen(true);  
-//  tft.start();
-//  tft.refresh();
-// 
-//  emu_init(); 
-//  #ifdef HAS_SND      
-//      audio.begin();
-//      audio.start(); 
-//  #endif  
-
  c64_Init();
 // xTaskCreatePinnedToCore(input_task, "inputthread", 4096, NULL, 2, NULL, 0);
-
   logFreeHeap();
    startWebServer();
   logFreeHeap();
 //  xTaskCreatePinnedToCore(spi_task, "spithread", 4096, NULL, 1, NULL, 0);
   //vTaskPrioritySet(NULL, tskIDLE_PRIORITY+1);     
 
-  setupSound();
+//  setupSoundTimer();
+  setupSoundCore();
 }
 long start = 0;
 
 void loop(void)
 {
-  
+//  while(true) {
+//    rtc_wdt_feed();
   ArduinoOTA.handle();
   
  
-  for (int n=0; n<10; n++) {
+  for (int n=0; n<100; n++) {
     c64_Step();
 
 //    AudioPlaySID playSid = c64_PlaySid();
@@ -393,15 +398,16 @@ void loop(void)
      sampleW++;
 //     if (sampleW>255) sampleW=0;
   //   ledcWrite(0, (unsigned char)();
-  
 //     ledcWrite(0, (unsigned char)(playSid.sidptr->output()>>8));
 
-    if (sampleW%1000==0) {
-      int freq = (1000.0/(millis()-start))*1000;
+
+    if (sampleW%10000==0) {
+      int freq = (1000.0/(millis()-start))*10000;
       start=millis();
       Serial.printf("sampleW %d SampleR %d freq %d\n", sampleW, sampleR, freq);
       
     }
+//  }
   }
 
 

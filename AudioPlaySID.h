@@ -31,7 +31,7 @@
 #ifndef play_sid_h_
 #define play_sid_h_
 //#define AUDIO_BLOCK_SAMPLES 443
-#define SAMPLERATE 6000
+#define SAMPLERATE 9100
 //#define SAMPLERATE 6500
 #define CLOCKFREQ 985248
 

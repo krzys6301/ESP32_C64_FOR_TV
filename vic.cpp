@@ -60,14 +60,14 @@
 
 
 
-#define BORDER      	        (ILI9341_TFTHEIGHT-200)/2
+#define BORDER      	        20//(ILI9341_TFTHEIGHT-200)/2
 #define SCREEN_HEIGHT         (200+2*BORDER)
 #define SCREEN_WIDTH          320
 #define LINE_MEM_WIDTH        320
 #define FIRSTDISPLAYLINE      (  51 - BORDER )
 #define LASTDISPLAYLINE       ( 250 + BORDER )
-#define BORDER_LEFT           0
-#define BORDER_RIGHT          0
+#define BORDER_LEFT           8
+#define BORDER_RIGHT          8
 
 typedef uint8_t tpixel;
 
@@ -1389,6 +1389,13 @@ void vic_do(void) {
   //max_x =  (!cpu.vic.CSEL) ? 40:38;
   //p = SCREENMEM + (r - FIRSTDISPLAYLINE) * LINE_MEM_WIDTH;
   p = tft.getLineBuffer((r - FIRSTDISPLAYLINE));
+
+//TODO THIS is probably not correct, but easy and works in 99% of cases, if you are brave you can make it correct :) for instance when loading, the color doesn't change exactkly as the rest of screen
+ if (cpu.vic.borderFlag) {
+    fastFillLineNoSprites(p, p + BORDER_LEFT, cpu.vic.colors[0]); 
+  }
+  p=p+BORDER_LEFT;
+  
   pe = p + SCREEN_WIDTH;
   //Left Screenborder: Cycle 10
   spl = &cpu.vic.spriteLine[24];
