@@ -21,11 +21,11 @@ static void oneRasterLine(void) {
     cpu.lineCycles = cpu.lineCyclesAbs = 0;
 
     if (!cpu.exactTiming) {
-    vic_do();
-     } else {
-    vic_do_simple();
-  }
-tft.eol();
+      vic_do();
+       } else {
+      vic_do_simple();
+    }
+    display.eol();
     if (--lc == 0) {
       lc = LINEFREQ / 10; // 10Hz
       cia1_checkRTCAlarm();

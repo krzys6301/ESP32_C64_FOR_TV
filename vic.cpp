@@ -60,7 +60,7 @@
 
 
 
-#define BORDER      	        20//(ILI9341_TFTHEIGHT-200)/2
+#define BORDER      	        20//(240-200)/2
 #define SCREEN_HEIGHT         (200+2*BORDER)
 #define SCREEN_WIDTH          320
 #define LINE_MEM_WIDTH        320
@@ -1388,7 +1388,7 @@ void vic_do(void) {
 
   //max_x =  (!cpu.vic.CSEL) ? 40:38;
   //p = SCREENMEM + (r - FIRSTDISPLAYLINE) * LINE_MEM_WIDTH;
-  p = tft.getLineBuffer((r - FIRSTDISPLAYLINE));
+  p = display.getLineBuffer((r - FIRSTDISPLAYLINE));
 
 //TODO THIS is probably not correct, but easy and works in 99% of cases, if you are brave you can make it correct :) for instance when loading, the color doesn't change exactkly as the rest of screen
  if (cpu.vic.borderFlag) {
@@ -1560,7 +1560,7 @@ g-Zugriff
     uint16_t col = cpu.vic.colors[0];
     //p = &screen[r - FIRSTDISPLAYLINE][0];
     //p = SCREENMEM +  (r - FIRSTDISPLAYLINE) * LINE_MEM_WIDTH  + BORDER_LEFT;
-    p = tft.getLineBuffer((r - FIRSTDISPLAYLINE));
+    p = display.getLineBuffer((r - FIRSTDISPLAYLINE));
 #if 0
     // Sprites im Rand
     uint16_t sprite;
@@ -1584,7 +1584,7 @@ g-Zugriff
     //Rand rechts:
     //p = &screen[r - FIRSTDISPLAYLINE][SCREEN_WIDTH - 9];
 	//p = SCREENMEM +  (r - FIRSTDISPLAYLINE) * LINE_MEM_WIDTH + SCREEN_WIDTH - 9 + BORDER_LEFT;
-	p = tft.getLineBuffer((r - FIRSTDISPLAYLINE)) + SCREEN_WIDTH - 9 + BORDER_LEFT;
+	p = display.getLineBuffer((r - FIRSTDISPLAYLINE)) + SCREEN_WIDTH - 9 + BORDER_LEFT;
   pe = p + 9;
 
 #if 0

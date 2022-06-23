@@ -58,7 +58,7 @@ inline unsigned long millis() {return (esp_timer_get_time()/1000);}
 
 #include "ili9341_t3dma.h"
 #include "display.h"
-extern Display tft;	
+extern Display display;	
 
 extern "C" {
   #include "emuapi.h"

@@ -33,17 +33,13 @@ extern "C" {
 
 //#include "display.h"
 //Display
-Display tft = Display();
+Display display = Display();
 //#include "cpu.h"
 //#define BUFFER_SIZE 256
 //unsigned char samples[BUFFER_SIZE];
-volatile unsigned long sampleW=0;
-volatile unsigned long sampleR=0;
+volatile unsigned long vicSpeed=0;
+volatile unsigned long sidSpeed=0;
 
-
-//#ifdef HAS_SND
-//AudioPlaySystem audio;
-//#endif
 
 #include <soc/rtc_wdt.h>
 #include <soc/rtc.h>
@@ -196,7 +192,7 @@ void setupOTA() {
 //    server->end();
 //    audio.stop();
 //    Serial.println("AUDIO STOPPED");
-    tft.end();
+    display.end();
     Serial.println("DISPLAY END");
 //    free(cpu.RAM);
 //    Serial.println("RAM FREE");
@@ -279,7 +275,7 @@ void coreSound(void * pvParameters) {
  esp_task_wdt_init(30, false);
   while (true) {
     
-//    rtc_wdt_feed();
+    rtc_wdt_feed();
      long start = micros();
   
      AudioPlaySID playSid = c64_PlaySid();
@@ -293,9 +289,11 @@ void coreSound(void * pvParameters) {
   
      ledcWrite(0, (unsigned char)((playSid.sidptr->output()>>8)+127));
          sampleN++;
-       if (sampleN%1000==0) {
-         vTaskDelay(1);
-       }
+//       if (sampleN%1000==0) {
+          yield();
+         vTaskDelay(0);
+         esp_task_wdt_reset();
+//       }
      long end = micros();
    
         delayMicroseconds(max((int)((1000000/SAMPLERATE) - (end - start)),0));
@@ -304,26 +302,33 @@ void coreSound(void * pvParameters) {
 
 
 
-
+long sids=0;
 void IRAM_ATTR isrSound() {
-
+    
     AudioPlaySID playSid = c64_PlaySid();
     cycle_count delta_t = playSid.csdelta;
     playSid.sidptr->clock(delta_t);
 //    samples[sampleW%BUFFER_SIZE]=(unsigned char)((playSid.sidptr->output()>>8)+127);
     ledcWrite(0, (unsigned char)((playSid.sidptr->output()>>8)+127));
-  
+
+      sidSpeed++;
+      if (sidSpeed%10000==0) {
+      int freq = (1000.0/(millis()-sids))*10000;
+     sids=millis();
+      Serial.printf("sidSpeed %d freq %d\n", vicSpeed,freq);
+      
+    }
 //  if (sampleR<sampleW) {
 //      ledcWrite(0, samples[sampleR%BUFFER_SIZE]);
 //      sampleR++;
 //  }
 }
   
-void setupSoundTimer() {
+void setupSoundTimer(void * pvParameters) {
 
-    ledcSetup(0,2000000,8);    // 625000 khz is as fast as we go w 7 bits
-  ledcAttachPin(AUDIO_PIN, 0);
-  ledcWrite(0,0);
+//    ledcSetup(0,2000000,8);    // 625000 khz is as fast as we go w 7 bits
+//  ledcAttachPin(AUDIO_PIN, 0);
+//  ledcWrite(0,0);
 
 //   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, tskIDLE_PRIORITY, NULL, 0);
 //   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, 2, NULL, 0);
@@ -332,15 +337,20 @@ void setupSoundTimer() {
   unsigned int timerFactor = 1000000/SAMPLERATE; //Calculate the time interval between two readings, or more accurately, the number of cycles between two readings
   timerAlarmWrite(timer, timerFactor, true);      //Initialize the timer
   timerAlarmEnable(timer); 
+   vTaskDelete(NULL); //  at the end of the function to gracefully end the task 
 }
 
-void setupSoundCore() {
+void setupSound() {
 
     ledcSetup(0,2000000,8);    // 625000 khz is as fast as we go w 7 bits
   ledcAttachPin(AUDIO_PIN, 0);
   ledcWrite(0,0);
+    TaskHandle_t th;
+//   xTaskCreatePinnedToCore(&coreSound, "soundThread", 4096, NULL, 0, &th, 0);
+   xTaskCreatePinnedToCore(&setupSoundTimer, "soundThread", 4096, NULL, 0, &th, 0);
 
-   xTaskCreatePinnedToCore(&coreSound, "inputthread", 4096, NULL, 0, NULL, 0);
+//   setupSoundTimer();
+   
 //   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, 2, NULL, 0);
 //  timer = timerBegin(0, 80, true);                //Begin timer with 1 MHz frequency (80MHz/80)
 //  timerAttachInterrupt(timer, &onTimer, true);   //Attach the interrupt to Timer1
@@ -362,20 +372,14 @@ void setupSoundCore() {
 void setup(void)
 {
   Serial.begin(115200);
-// rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);        
+  rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);        
   setupWiFi_by_manager();
   setupOTA();
-  tft.begin();
- c64_Init();
-// xTaskCreatePinnedToCore(input_task, "inputthread", 4096, NULL, 2, NULL, 0);
+  display.begin();
+  c64_Init();  
+  setupSound();
+  startWebServer();
   logFreeHeap();
-   startWebServer();
-  logFreeHeap();
-//  xTaskCreatePinnedToCore(spi_task, "spithread", 4096, NULL, 1, NULL, 0);
-  //vTaskPrioritySet(NULL, tskIDLE_PRIORITY+1);     
-
-//  setupSoundTimer();
-  setupSoundCore();
 }
 long start = 0;
 
@@ -395,16 +399,16 @@ void loop(void)
 //    samples[sampleW%BUFFER_SIZE]=(unsigned char)((playSid.sidptr->output()>>8)+127);
 
      
-     sampleW++;
+     vicSpeed++;
 //     if (sampleW>255) sampleW=0;
   //   ledcWrite(0, (unsigned char)();
 //     ledcWrite(0, (unsigned char)(playSid.sidptr->output()>>8));
 
 
-    if (sampleW%10000==0) {
+    if (vicSpeed%10000==0) {
       int freq = (1000.0/(millis()-start))*10000;
       start=millis();
-      Serial.printf("sampleW %d SampleR %d freq %d\n", sampleW, sampleR, freq);
+      Serial.printf("vicSpeed %d freq %d\n", vicSpeed,freq);
       
     }
 //  }
@@ -533,8 +537,8 @@ void configureWebServer() {
       logmessage += " Auth: Success";
       Serial.println(logmessage);
 //      shouldReboot = true;
-
-      ESP.restart();
+      c64_Init();
+//      ESP.restart();
 
     } else {
       logmessage += " Auth: Failed";

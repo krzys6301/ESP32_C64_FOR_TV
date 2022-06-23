@@ -16,17 +16,7 @@ CompositeColorOutput composite(CompositeColorOutput::NTSC);
 
 unsigned char **gb_buffer_vga;
 
-Display::Display(void)//uint8_t cs, uint8_t dc, uint8_t rst, uint8_t mosi, uint8_t clk, uint8_t miso,  uint8_t touch_cs,  uint8_t touch_irq)
-{
-//  _cs   = cs;
-//  _dc   = dc;
-//  _rst  = rst;
-//  _mosi = mosi;
-//  _clk  = clk;
-//  _miso = miso;
-//  _touch_irq = touch_irq;
-//  _touch_cs = touch_cs;
-}
+Display::Display(void){}
 
 esp_pm_lock_handle_t powerManagementLock;
 int xres=340;
@@ -35,6 +25,7 @@ int lineNum=0;
 //uint16_t* line = (uint16_t*)heap_caps_malloc(320*1*sizeof(uint16_t), MALLOC_CAP_DMA);
 //uint16_t* line = (uint16_t*)malloc(340*sizeof(uint16_t));
 //blocks[j]= (uint16_t*)heap_caps_malloc(ILI9341_TFTREALWIDTH*lines_per_block*sizeof(uint16_t), MALLOC_CAP_DMA);
+// this line is exposed to the VIC afer each line "end of line" eol() is called from the vic -> this last line it is redrawn into fomat for the video_out
 uint8_t* line = (uint8_t*)(unsigned char*)malloc(xres);
 void Display::begin(void)
 {
@@ -87,7 +78,8 @@ void Display::eol() {
   uint8_t* l = (uint8_t*) gb_buffer_vga[lineNum];
   // rewrite the "full line (aka 8bit per pixel)" into 4-BIT color format;
   uint8_t* p = line;
-  for (int n=0; n<(xres/2);n++) {
+  uint8_t* e = p + xres;
+  while (p<e) {
 //      Serial.println(l[n]);
 
 //    l[n] = 6;//l[n];  
