@@ -380,6 +380,7 @@ void setup(void)
   setupSound();
   startWebServer();
   logFreeHeap();
+  emu_InitJoysticks(); // this is for enabling analog joy // CIA 1 addr 53260 53261
 }
 long start = 0;
 

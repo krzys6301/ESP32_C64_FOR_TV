@@ -21,6 +21,7 @@ extern "C" {
 #include <dirent.h>
 #include <sys/stat.h>
 #include <driver/adc.h>
+#include <HardwareSerial.h>
 
 #ifdef HAS_I2CKBD
 #ifdef USE_WIRE
@@ -740,7 +741,7 @@ int emu_LoadFileSeek(char * filename, char * buf, int size, int seek)
 }
 
 static int keypadval=0; 
-static bool joySwapped = false;
+static bool joySwapped = true;
 static uint16_t bLastState;
 static int xRef=1;
 static int yRef=1;
@@ -749,7 +750,7 @@ int emu_ReadAnalogJoyX(int min, int max)
 {
   int val; //adc1_get_raw((adc1_channel_t)PIN_JOY2_A1X);  
   adc2_get_raw((adc2_channel_t)PIN_JOY2_A1X, ADC_WIDTH_BIT_12,&val);
-  //printf("refX:%d X:%d\n",xRef,val); 
+  printf("refX:%d X:%d\n",xRef,val); 
   val = val-xRef;
   //val = ((val*140)/100);
   if ( (val > -xRef/4) && (val < xRef/4) ) val = 0;
@@ -783,15 +784,36 @@ static uint16_t readAnalogJoystick(void)
 {
   uint16_t joysval = 0;
 
-  int xReading = emu_ReadAnalogJoyX(0,256);
-  if (xReading > 128) joysval |= MASK_JOY2_LEFT;
-  else if (xReading < 128) joysval |= MASK_JOY2_RIGHT;
+
+//#define JOY_1_up      12
+//#define JOY_1_down    14
+//#define JOY_1_left    5
+//#define JOY_1_right   4
+//#define JOY_1_fire  
+//gpio_get_level((gpio_num_t)JOY_1_up)
+//  int xReading = emu_ReadAnalogJoyX(0,256);
+//  if (xReading > 128) joysval |= MASK_JOY2_LEFT;
+//  else if (xReading < 128) 
+//  
+
+  joysval |= ((gpio_get_level((gpio_num_t)JOY_1_up) == 1) ? 0 : MASK_JOY2_UP);
+  joysval |= ((gpio_get_level((gpio_num_t)JOY_1_down) == 1) ? 0 : MASK_JOY2_DOWN);
+  joysval |= ((gpio_get_level((gpio_num_t)JOY_1_right) == 1) ? 0 : MASK_JOY2_RIGHT);
+  joysval |= ((gpio_get_level((gpio_num_t)JOY_1_left) == 1) ? 0 : MASK_JOY2_LEFT);
+  joysval |= ((gpio_get_level((gpio_num_t)JOY_1_fire) == 1) ? 0 : MASK_JOY2_BTN);
   
-  int yReading = emu_ReadAnalogJoyY(0,256);
-  if (yReading < 128) joysval |= MASK_JOY2_UP;
-  else if (yReading > 128) joysval |= MASK_JOY2_DOWN;
-  
-  joysval |= ((gpio_get_level((gpio_num_t)PIN_JOY2_BTN) == 1) ? 0 : MASK_JOY2_BTN);
+//  Serial.printf("joysval %d", (int)joysval); 
+//  joysval |= gpio_get_level((gpio_num_t)JOY_1_up)?0:MASK_JOY2_UP;
+//  joysval |= gpio_get_level((gpio_num_t)JOY_1_down)?0:MASK_JOY2_DOWN;
+//  joysval |= gpio_get_level((gpio_num_t)JOY_1_left)?0:MASK_JOY2_RIGHT;
+//  joysval |= gpio_get_level((gpio_num_t)JOY_1_right)?0:MASK_JOY2_LEFT;
+//    joysval |= gpio_get_level((gpio_num_t)JOY_1_right)?0:MASK_JOY2_LEFT;
+//  
+//  int yReading = emu_ReadAnalogJoyY(0,256);
+//  if (yReading < 128) joysval |= MASK_JOY2_UP;
+//  else if (yReading > 128) joysval |= MASK_JOY2_DOWN;
+//  
+//  joysval |= ((gpio_get_level((gpio_num_t)PIN_JOY2_BTN) == 1) ? 0 : MASK_JOY2_BTN);
 
   return (joysval);     
 }
@@ -886,32 +908,43 @@ int emu_ReadI2CKeyboard(void) {
 }
 
 void emu_InitJoysticks(void) {  
-  gpio_set_direction((gpio_num_t)PIN_JOY2_BTN, GPIO_MODE_INPUT);
-  gpio_set_pull_mode((gpio_num_t)PIN_JOY2_BTN, GPIO_PULLUP_ONLY);
-  gpio_set_direction((gpio_num_t)PIN_KEY_USER1, GPIO_MODE_INPUT);
-  gpio_set_pull_mode((gpio_num_t)PIN_KEY_USER1, GPIO_PULLUP_ONLY);
-  gpio_set_direction((gpio_num_t)PIN_KEY_USER2, GPIO_MODE_INPUT);
-  gpio_set_pull_mode((gpio_num_t)PIN_KEY_USER2, GPIO_PULLUP_ONLY);
+//#define JOY_1_up      12
+//#define JOY_1_down    14
+//#define JOY_1_left    5
+//#define JOY_1_right   4
+//#define JOY_1_fire  
 
-  //adc1_config_channel_atten((adc1_channel_t)PIN_JOY2_A1X,ADC_ATTEN_DB_11);
-  //adc1_config_channel_atten((adc1_channel_t)PIN_JOY2_A2Y,ADC_ATTEN_DB_11);
-  adc2_config_channel_atten((adc2_channel_t)PIN_JOY2_A1X,ADC_ATTEN_DB_11);
-  adc2_config_channel_atten((adc2_channel_t)PIN_JOY2_A2Y,ADC_ATTEN_DB_11);
-  xRef=0; yRef=0;
-  for (int i=0; i<10; i++) {
-    int val;
-    adc2_get_raw((adc2_channel_t)PIN_JOY2_A1X, ADC_WIDTH_BIT_12, &val);
-    //val = adc1_get_raw((adc1_channel_t)PIN_JOY2_A1X);
-    xRef += val;
-    adc2_get_raw((adc2_channel_t)PIN_JOY2_A2Y,ADC_WIDTH_BIT_12, &val);
-    //val = adc1_get_raw((adc1_channel_t)PIN_JOY2_A2Y); 
-    yRef += val;
-    vTaskDelay(20 / portTICK_PERIOD_MS); 
-  }
-  xRef /= 10;
-  yRef /= 10;
+  
+  gpio_set_direction((gpio_num_t)JOY_1_up, GPIO_MODE_INPUT);
+  gpio_set_pull_mode((gpio_num_t)JOY_1_up, GPIO_PULLUP_ONLY);
+  gpio_set_direction((gpio_num_t)JOY_1_down, GPIO_MODE_INPUT);
+  gpio_set_pull_mode((gpio_num_t)JOY_1_down, GPIO_PULLUP_ONLY);
+  gpio_set_direction((gpio_num_t)JOY_1_left, GPIO_MODE_INPUT);
+  gpio_set_pull_mode((gpio_num_t)JOY_1_left, GPIO_PULLUP_ONLY);
+  gpio_set_direction((gpio_num_t)JOY_1_right, GPIO_MODE_INPUT);
+  gpio_set_pull_mode((gpio_num_t)JOY_1_right, GPIO_PULLUP_ONLY);
+  gpio_set_direction((gpio_num_t)JOY_1_fire, GPIO_MODE_INPUT);
+  gpio_set_pull_mode((gpio_num_t)JOY_1_fire, GPIO_PULLUP_ONLY);
 
-  printf("refs: %d %d\n",xRef,yRef); 
+//  //adc1_config_channel_atten((adc1_channel_t)PIN_JOY2_A1X,ADC_ATTEN_DB_11);
+//  //adc1_config_channel_atten((adc1_channel_t)PIN_JOY2_A2Y,ADC_ATTEN_DB_11);
+//  adc2_config_channel_atten((adc2_channel_t)PIN_JOY2_A1X,ADC_ATTEN_DB_11);
+//  adc2_config_channel_atten((adc2_channel_t)PIN_JOY2_A2Y,ADC_ATTEN_DB_11);
+//  xRef=0; yRef=0;
+//  for (int i=0; i<10; i++) {
+//    int val;
+//    adc2_get_raw((adc2_channel_t)PIN_JOY2_A1X, ADC_WIDTH_BIT_12, &val);
+//    //val = adc1_get_raw((adc1_channel_t)PIN_JOY2_A1X);
+//    xRef += val;
+//    adc2_get_raw((adc2_channel_t)PIN_JOY2_A2Y,ADC_WIDTH_BIT_12, &val);
+//    //val = adc1_get_raw((adc1_channel_t)PIN_JOY2_A2Y); 
+//    yRef += val;
+//    vTaskDelay(20 / portTICK_PERIOD_MS); 
+//  }
+//  xRef /= 10;
+//  yRef /= 10;
+//
+//  printf("refs: %d %d\n",xRef,yRef); 
 }
 
 
