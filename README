@@ -1,1 +1,39 @@
 THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE 
+
+This is an C64 simulator that runs on single esp32 board, pin 25 is NTSC compiste output and pin 18 is audio.
+There is an async http server accessible at port 80, which allows to upload a *.PRG file, and execute some commands on the C64 "console" screen, eg. issue RUN or LIST command.
+There is WiFi manager installed, so after first you need to connect to wifi network "EPS_32" and setup the WiFi connection, if the esp remebers some wifi from previous project then it will probably connect autmatically.
+There is OTA, which is handy, but it stopped working after I added a Timer for sound, I don't know exactly why it is not working but it might be that there bis not enough memory or the Timer itself is somwhat braking it.
+
+Joystick is almost working, the pins used are described in iopins.h and emuapi.cpp has a "joySwapped" flag to swap joysticks 1 or 2.
+jostick pins:
+#define JOY_1_up      12
+#define JOY_1_down    14
+#define JOY_1_left    5
+#define JOY_1_right   4
+#define JOY_1_fire    17
+
+I compiled it with arduino 1.8.19 and esp 32 board installed from https://dl.espressif.com/dl/package_esp32_index.json
+
+There are definitively some bugs there, the speed is probably somwhere at 80% of the orginall C64, the vic.cpp is probably the slowest part depending on the screen mode, maybe there are some techniques which I'm not aware of to improve the speed of emulation.
+Everyone is welcomed to do some improvements, that's the reason I push this software to git.
+This project uses brilliant solutions from several other projects: (in the future I will update the descriptions to a repo link, now just for the record)
+reSID
+espMCUME
+AsyncHttpServer for ESP32
+esp_8_bit
+bitluni esp32 composite out
+
+without which it wouldn't be possible, if you see your open source work in this project and you're not enlisted please let me know, so I can add you here for the fame, thanks and record :)
+
+TODO:
+-- check if joystick works
+-- add maybe other formats than *.PRG
+-- make the emulation faster
+-- improve the web console as it sometimes leads the restart of ESP32
+-- fix OTA, so it can work together with sound
+-- any other idea is welcomed
+
+
+
+
