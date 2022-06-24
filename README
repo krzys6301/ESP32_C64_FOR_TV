@@ -1,5 +1,7 @@
 THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE 
 
+![Alt text](/PHOTO/IMG_20220617_014104.jpg?raw=true "work in progress")
+
 This is an C64 simulator that runs on single esp32 board, pin 25 is NTSC compiste output and pin 18 is audio.
 There is an async http server accessible at port 80, which allows to upload a *.PRG file, and execute some commands on the C64 "console" screen, eg. issue RUN or LIST command.
 There is WiFi manager installed, so after first you need to connect to wifi network "EPS_32" and setup the WiFi connection, if the esp remebers some wifi from previous project then it will probably connect autmatically.
