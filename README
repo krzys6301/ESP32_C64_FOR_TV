@@ -1,6 +1,6 @@
 THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE 
 
-![Alt text](/PHOTO/IMG_20220617_014104.jpg?raw=true "Optional Title")
+![Alt text](ESP32_C64_FOR_TV/PHOTO/IMG_20220617_014104.jpg?raw=true "Optional Title")
 
 This is an C64 simulator that runs on single esp32 board, pin 25 is NTSC compiste output and pin 18 is audio.
 There is an async http server accessible at port 80, which allows to upload a *.PRG file, and execute some commands on the C64 "console" screen, eg. issue RUN or LIST command.
