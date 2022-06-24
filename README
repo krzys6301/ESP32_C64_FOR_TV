@@ -5,7 +5,7 @@ There is an async http server accessible at port 80, which allows to upload a *.
 There is WiFi manager installed, so after first you need to connect to wifi network "EPS_32" and setup the WiFi connection, if the esp remebers some wifi from previous project then it will probably connect autmatically.
 There is OTA, which is handy, but it stopped working after I added a Timer for sound, I don't know exactly why it is not working but it might be that there bis not enough memory or the Timer itself is somwhat braking it.
 
-Joystick is almost working, the pins used are described in iopins.h and emuapi.cpp has a "joySwapped" flag to swap joysticks 1 or 2.
+Joystick is almost working (not tested in game, but peeking the c64 address 56320 & 56321 "PEEK(56320):PEEK(56321)" is showing that the movements are detected), the pins used are described in iopins.h and emuapi.cpp has a "joySwapped" flag to swap joysticks 1 or 2.
 jostick pins:
 #define JOY_1_up      12
 #define JOY_1_down    14
@@ -32,7 +32,21 @@ TODO:
 -- make the emulation faster
 -- improve the web console as it sometimes leads the restart of ESP32
 -- fix OTA, so it can work together with sound
+-- maybe implement joyPort select (1 or 2) via some jumper on a esp32 pin?
 -- any other idea is welcomed
+
+
+I've tested it with an ecellent sat of C64 games, that I've downloaded form https://www.lemon64.com/forum/viewtopic.php?t=76305
+There path for the *.PRG that works with this simulator is: OneLoad64-Games-Collection-v3\PRGs\Crunched\*.PRG
+
+There is BoulderDash, Paradroid, Frogger etc in this collection, and all of them seem to work, and seems to be playable at current emulation speed.
+Some games are much slower, some are quite fast, depends on the way the use the vic chip, the code in vic.cpp can probably be improved.
+
+After each line the vic is drawing I transfer it to a more concise 4bit/pixel format, which allows to store information about each pixel having one of 16 possible colors in the c64,
+this is done by calling the display.eol() function. Rewriting the vic.cpp to natively write in this format would be probably possible and maybe improve performance, but this is POC and it was easier,
+it saved quite a lot of ram memory on the frame buffer, and thanks to this there can be more fetures.
+
+When this board starts is shows the IP address in the Serial console, the speed is 115200.
 
 
 
