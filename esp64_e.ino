@@ -45,6 +45,13 @@ volatile unsigned long sidSpeed=0;
 #include <soc/rtc.h>
 
 
+hw_timer_t * timer = NULL; 
+#define AUDIO_PIN 18
+
+volatile int sampleN=0;
+#include "AudioPlaySID.h"
+#include <esp_task_wdt.h>
+
 
 //const String default_ssid = "Cichocki";
 //const String default_wifipassword = "Krzysztof24031985";
@@ -189,9 +196,13 @@ void setupOTA() {
     ArduinoOTA
     .onStart([]() {
     Serial.println("OTA START");
+//    timerAlarmWrite(timer, 1, false);
+    timerStop(timer);
+    timerAlarmDisable(timer);
 //    server->end();
 //    audio.stop();
 //    Serial.println("AUDIO STOPPED");
+    
     display.end();
     Serial.println("DISPLAY END");
 //    free(cpu.RAM);
@@ -263,13 +274,6 @@ void setupWiFi_by_manager() {
 #include <Arduino.h> 
 
 
-
-hw_timer_t * timer = NULL; 
-  #define AUDIO_PIN 18
-
-volatile int sampleN=0;
-#include "AudioPlaySID.h"
-#include <esp_task_wdt.h>
 
 void coreSound(void * pvParameters) {
  esp_task_wdt_init(30, false);
