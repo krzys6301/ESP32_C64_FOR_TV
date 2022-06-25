@@ -5,7 +5,7 @@ THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE
 This is an C64 simulator that runs on single esp32 board, pin 25 is NTSC compiste output and pin 18 is audio.
 There is an async http server accessible at port 80, which allows to upload a *.PRG file, and execute some commands on the C64 "console" screen, eg. issue RUN or LIST command.
 There is WiFi manager installed, so after first you need to connect to wifi network "EPS_32" and setup the WiFi connection, if the esp remebers some wifi from previous project then it will probably connect autmatically.
-There is OTA, which is handy, but it stopped working after I added a Timer for sound, I don't know exactly why it is not working but it might be that there bis not enough memory or the Timer itself is somwhat braking it.
+There is also OTA for over-the-air updates - handy for quick testing.
 
 Joystick is almost working (not tested in game, but peeking the c64 address 56320 & 56321 "PEEK(56320):PEEK(56321)" is showing that the movements are detected), the pins used are described in iopins.h and emuapi.cpp has a "joySwapped" flag to swap joysticks 1 or 2.
 jostick pins:
@@ -26,7 +26,7 @@ AsyncHttpServer for ESP32
 esp_8_bit
 bitluni esp32 composite out
 
-without which it wouldn't be possible, if you see your open source work in this project and you're not enlisted please let me know, so I can add you here for the fame, thanks and record :)
+without the above projects it wouldn't exist, if you see your open source work in this project and you're not enlisted please let me know, so I can add you here for the fame, thanks and record :)
 
 TODO:
 -- check if joystick works
@@ -38,17 +38,17 @@ TODO:
 -- any other idea is welcomed
 
 
-I've tested it with an ecellent sat of C64 games, that I've downloaded form https://www.lemon64.com/forum/viewtopic.php?t=76305
+I've tested it with an excellent set of C64 games, that I've downloaded form https://www.lemon64.com/forum/viewtopic.php?t=76305
 There path for the *.PRG that works with this simulator is: OneLoad64-Games-Collection-v3\PRGs\Crunched\*.PRG
 
 There is BoulderDash, Paradroid, Frogger etc in this collection, and all of them seem to work, and seems to be playable at current emulation speed.
 Some games are much slower, some are quite fast, depends on the way the use the vic chip, the code in vic.cpp can probably be improved.
 
-After each line the vic is drawing I transfer it to a more concise 4bit/pixel format, which allows to store information about each pixel having one of 16 possible colors in the c64,
-this is done by calling the display.eol() function. Rewriting the vic.cpp to natively write in this format would be probably possible and maybe improve performance, but this is POC and it was easier,
-it saved quite a lot of ram memory on the frame buffer, and thanks to this there can be more fetures.
+After each line the vic is drawing it is transformed into more concise format 4bit/pixel, which allows to store information about pixel collor of 16 possible colors in the c64,
+the conversion is done by the display.eol() function. Rewriting the vic.cpp to natively write in this format would probably improve performance, but that is much work.
+This solution saved quite a lot of ram memory on the frame buffer, and thanks to this there can be more fetures like sound, webserver and OTA.
 
-When this board starts is shows the IP address in the Serial console, the speed is 115200.
+When this board starts is prints the IP address to the Serial console, the serial speed is 115200.
 
 
 
