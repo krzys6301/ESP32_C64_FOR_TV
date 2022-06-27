@@ -8,6 +8,7 @@
 #define JOY_1_left    5
 #define JOY_1_right   4
 #define JOY_1_fire    17
+#define JOY_swap      23
 
 // ILI9341
 //#define PIN_NUM_CS      (gpio_num_t)15

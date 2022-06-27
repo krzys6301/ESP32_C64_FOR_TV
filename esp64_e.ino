@@ -13,8 +13,8 @@
 #include "Teensy64.h"
 
 extern "C" {
-  #include "emuapi.h"
-  #include "iopins.h"
+#include "emuapi.h"
+#include "iopins.h"
 }
 
 #include "esp_event.h"
@@ -37,49 +37,41 @@ Display display = Display();
 //#include "cpu.h"
 //#define BUFFER_SIZE 256
 //unsigned char samples[BUFFER_SIZE];
-volatile unsigned long vicSpeed=0;
-volatile unsigned long sidSpeed=0;
+volatile unsigned long vicSpeed = 0;
+volatile unsigned long sidSpeed = 0;
 
 
 #include <soc/rtc_wdt.h>
 #include <soc/rtc.h>
 
 
-hw_timer_t * timer = NULL; 
+hw_timer_t * timer = NULL;
 #define AUDIO_PIN 18
 
-volatile int sampleN=0;
+volatile int sampleN = 0;
 #include "AudioPlaySID.h"
 #include <esp_task_wdt.h>
 
 
-//const String default_ssid = "Cichocki";
-//const String default_wifipassword = "Krzysztof24031985";
 const String default_httpuser = "admin";
 const String default_httppassword = "admin";
 const int default_webserverporthttp = 80;
 
 // configuration structure
 struct Config {
-//  String ssid;               // wifi ssid
-//  String wifipassword;       // wifi password
   String httpuser;           // username to access web admin
   String httppassword;       // password to access web admin
   int webserverporthttp;     // http port number for web admin
 };
 
 #define FIRMWARE_VERSION "v0.0.1"
-// variables
 Config config;                        // configuration
 bool shouldReboot = false;            // schedule a reboot
 AsyncWebServer *server;               // initialise webserver
 
 void startWebServer() {
   // configure web server
-    Serial.println("Loading Configuration ...");
-
-//  config.ssid = default_ssid;
-//  config.wifipassword = default_wifipassword;
+  Serial.println("Loading Configuration ...");
   config.httpuser = default_httpuser;
   config.httppassword = default_httppassword;
   config.webserverporthttp = default_webserverporthttp;
@@ -139,248 +131,142 @@ String humanReadableSize(const size_t bytes) {
 }
 
 
-
-
-//
-//
-//
-//
-//
-//static void input_task(void *args)
-//{
-//  while(true) {
-////    if ((emu_ReadKeys() & (MASK_KEY_USER1+MASK_KEY_USER2)) == (MASK_KEY_USER1+MASK_KEY_USER2)) {  
-////      printf("rebooting\n");
-////      esp_restart();    
-////    }
-////
-////    uint16_t bClick = emu_DebounceLocalKeys();
-////    if (bClick & MASK_KEY_USER2) { 
-////      printf("%d\n",emu_SwapJoysticks(1)); 
-////      emu_SwapJoysticks(0);
-////    }
-////    else {
-////      emu_Input(bClick);
-////    }
-//#ifdef HAS_SND      
-//    audio.step();
-//#endif  
-//    vTaskDelay(1);
-//  } 
-//}
-
-//static void main_step() {
-////  if (menuActive()) {
-////    uint16_t bClick = emu_DebounceLocalKeys();
-////    int action = handleMenu(bClick);
-////    char * filename = menuSelection();
-////    if (action == ACTION_RUNTFT) {
-////#ifdef HAS_SND      
-////      audio.begin();
-////      audio.start();
-////#endif                 
-////      toggleMenu(false); 
-////      tft.fillScreenNoDma( RGBVAL16(0x00,0x00,0x00) );
-////      xTaskCreatePinnedToCore(input_task, "inputthread", 4096, NULL, 2, NULL, 0);
-////      emu_Init(filename);        
-////    }       
-////    //vTaskDelay(20 / portTICK_PERIOD_MS); 
-////  }
-////  else {         
-//    emu_Step();     
-////  }
-//}
-
-
 void setupOTA() {
-    ArduinoOTA
-    .onStart([]() {
+  ArduinoOTA
+  .onStart([]() {
     Serial.println("OTA START");
-//    timerAlarmWrite(timer, 1, false);
     timerStop(timer);
     timerAlarmDisable(timer);
-//    server->end();
-//    audio.stop();
-//    Serial.println("AUDIO STOPPED");
-    
     display.end();
     Serial.println("DISPLAY END");
-//    free(cpu.RAM);
-//    Serial.println("RAM FREE");
-
-    
-    
-//    logFreeHeap();
-
-         
-      String type;
-      if (ArduinoOTA.getCommand() == U_FLASH)
-        
-        type = "sketch";
-      else // U_SPIFFS
-        type = "filesystem";
-
-      // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
-      Serial.println("Start updating " + type);
-    })
-    .onEnd([]() {
-      Serial.println("\nEnd");
-    })
-    .onProgress([](unsigned int progress, unsigned int total) {
-      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-    })
-    .onError([](ota_error_t error) {
-      Serial.printf("Error[%u]: ", error);
-      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-      else if (error == OTA_END_ERROR) Serial.println("End Failed");
-    });
+    //    free(cpu.RAM);
+    //    Serial.println("RAM FREE");
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH)
+      type = "sketch";
+    else // U_SPIFFS
+      type = "filesystem";
+    // NOTE: if updating SPIFFS this would be the place to unmount SPIFFS using SPIFFS.end()
+    Serial.println("Start updating " + type);
+  })
+  .onEnd([]() {
+    Serial.println("\nEnd");
+  })
+  .onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+  })
+  .onError([](ota_error_t error) {
+    Serial.printf("Error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  });
   ArduinoOTA.setHostname("ESP32-C64_SIMULATOR");
   ArduinoOTA.begin();
 }
 
 void setupWiFi_by_manager() {
-    WiFiManager manager;    
-     
-    bool success = manager.autoConnect("ESP32_AP","password");
- 
-    if(!success) {
-        Serial.println("Failed to connect");
-    } 
-    else {
-        Serial.println("Connected");
-        Serial.println("\n\nNetwork Configuration:");
-        Serial.println("----------------------");
-        Serial.print("         SSID: "); Serial.println(WiFi.SSID());
-        Serial.print("  Wifi Status: "); Serial.println(WiFi.status());
-        Serial.print("Wifi Strength: "); Serial.print(WiFi.RSSI()); Serial.println(" dBm");
-        Serial.print("          MAC: "); Serial.println(WiFi.macAddress());
-        Serial.print("           IP: "); Serial.println(WiFi.localIP());
-        Serial.print("       Subnet: "); Serial.println(WiFi.subnetMask());
-        Serial.print("      Gateway: "); Serial.println(WiFi.gatewayIP());
-        Serial.print("        DNS 1: "); Serial.println(WiFi.dnsIP(0));
-        Serial.print("        DNS 2: "); Serial.println(WiFi.dnsIP(1));
-        Serial.print("        DNS 3: "); Serial.println(WiFi.dnsIP(2));
-        Serial.println();
-
-    }
-//    free(&manager);
-}
-
-
-#include <esp32-hal.h> 
-#include <Arduino.h> 
-
-
-
-void coreSound(void * pvParameters) {
- esp_task_wdt_init(30, false);
-  while (true) {
-    
-    rtc_wdt_feed();
-     long start = micros();
-  
-     AudioPlaySID playSid = c64_PlaySid();
-  
-     cycle_count delta_t = playSid.csdelta;
-  //   if (playSid.sidptr) {
-     playSid.sidptr->clock(delta_t);
-  //    playSid.sidptr->clock();
-     
-  //   ledcWrite(0, (unsigned char)();
-  
-     ledcWrite(0, (unsigned char)((playSid.sidptr->output()>>8)+127));
-         sampleN++;
-//       if (sampleN%1000==0) {
-          yield();
-         vTaskDelay(0);
-         esp_task_wdt_reset();
-//       }
-     long end = micros();
-   
-        delayMicroseconds(max((int)((1000000/SAMPLERATE) - (end - start)),0));
-   }
+  WiFiManager manager;
+  bool success = manager.autoConnect("ESP32_AP", "password");
+  if (!success) {
+    Serial.println("Failed to connect");
   }
-
-
-
-long sids=0;
-void IRAM_ATTR isrSound() {
-    
-    AudioPlaySID playSid = c64_PlaySid();
-    cycle_count delta_t = playSid.csdelta;
-    playSid.sidptr->clock(delta_t);
-//    samples[sampleW%BUFFER_SIZE]=(unsigned char)((playSid.sidptr->output()>>8)+127);
-    ledcWrite(0, (unsigned char)((playSid.sidptr->output()>>8)+127));
-
-      sidSpeed++;
-      if (sidSpeed%10000==0) {
-      int freq = (1000.0/(millis()-sids))*10000;
-     sids=millis();
-      Serial.printf("sidSpeed %d freq %d\n", vicSpeed,freq);
-      
-    }
-//  if (sampleR<sampleW) {
-//      ledcWrite(0, samples[sampleR%BUFFER_SIZE]);
-//      sampleR++;
-//  }
+  else {
+    Serial.println("Connected");
+    Serial.println("\n\nNetwork Configuration:");
+    Serial.println("----------------------");
+    Serial.print("         SSID: "); Serial.println(WiFi.SSID());
+    Serial.print("  Wifi Status: "); Serial.println(WiFi.status());
+    Serial.print("Wifi Strength: "); Serial.print(WiFi.RSSI()); Serial.println(" dBm");
+    Serial.print("          MAC: "); Serial.println(WiFi.macAddress());
+    Serial.print("           IP: "); Serial.println(WiFi.localIP());
+    Serial.print("       Subnet: "); Serial.println(WiFi.subnetMask());
+    Serial.print("      Gateway: "); Serial.println(WiFi.gatewayIP());
+    Serial.print("        DNS 1: "); Serial.println(WiFi.dnsIP(0));
+    Serial.print("        DNS 2: "); Serial.println(WiFi.dnsIP(1));
+    Serial.print("        DNS 3: "); Serial.println(WiFi.dnsIP(2));
+    Serial.println();
+  }
 }
-  
+
+
+//#include <esp32-hal.h>
+//#include <Arduino.h>
+//
+//void coreSound(void * pvParameters) {
+//  esp_task_wdt_init(30, false);
+//  while (true) {
+//
+//    rtc_wdt_feed();
+//    long start = micros();
+//
+//    AudioPlaySID playSid = c64_PlaySid();
+//
+//    cycle_count delta_t = playSid.csdelta;
+//    //   if (playSid.sidptr) {
+//    playSid.sidptr->clock(delta_t);
+//    //    playSid.sidptr->clock();
+//
+//    //   ledcWrite(0, (unsigned char)();
+//
+//    ledcWrite(0, (unsigned char)((playSid.sidptr->output() >> 8) + 127));
+//    sampleN++;
+//    //       if (sampleN%1000==0) {
+//    yield();
+//    vTaskDelay(0);
+//    esp_task_wdt_reset();
+//    //       }
+//    long end = micros();
+//
+//    delayMicroseconds(max((int)((1000000 / SAMPLERATE) - (end - start)), 0));
+//  }
+//}
+
+
+
+long sids = 0;
+void IRAM_ATTR isrSound() {
+  AudioPlaySID playSid = c64_PlaySid();
+  cycle_count delta_t = playSid.csdelta;
+  playSid.sidptr->clock(delta_t);
+  ledcWrite(0, (unsigned char)((playSid.sidptr->output() >> 8) + 127));
+  sidSpeed++;
+  if (sidSpeed % 10000 == 0) {
+    int freq = (1000.0 / (millis() - sids)) * 10000;
+    sids = millis();
+    Serial.printf("sidSpeed %d freq %d\n", vicSpeed, freq);
+  }
+}
+
 void setupSoundTimer(void * pvParameters) {
-
-//    ledcSetup(0,2000000,8);    // 625000 khz is as fast as we go w 7 bits
-//  ledcAttachPin(AUDIO_PIN, 0);
-//  ledcWrite(0,0);
-
-//   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, tskIDLE_PRIORITY, NULL, 0);
-//   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, 2, NULL, 0);
   timer = timerBegin(0, 80, true);                //Begin timer with 1 MHz frequency (80MHz/80)
   timerAttachInterrupt(timer, &isrSound, true);   //Attach the interrupt to Timer1
-  unsigned int timerFactor = 1000000/SAMPLERATE; //Calculate the time interval between two readings, or more accurately, the number of cycles between two readings
+  unsigned int timerFactor = 1000000 / SAMPLERATE; //Calculate the time interval between two readings, or more accurately, the number of cycles between two readings
   timerAlarmWrite(timer, timerFactor, true);      //Initialize the timer
-  timerAlarmEnable(timer); 
-   vTaskDelete(NULL); //  at the end of the function to gracefully end the task 
+  timerAlarmEnable(timer);
+  vTaskDelete(NULL); //  at the end of the function to gracefully end the task
 }
 
 void setupSound() {
-
-    ledcSetup(0,2000000,8);    // 625000 khz is as fast as we go w 7 bits
+  ledcSetup(0, 2000000, 8);  // 625000 khz is as fast as we go w 7 bits
   ledcAttachPin(AUDIO_PIN, 0);
-  ledcWrite(0,0);
-    TaskHandle_t th;
-//   xTaskCreatePinnedToCore(&coreSound, "soundThread", 4096, NULL, 0, &th, 0);
-   xTaskCreatePinnedToCore(&setupSoundTimer, "soundThread", 4096, NULL, 0, &th, 0);
-
-//   setupSoundTimer();
-   
-//   xTaskCreatePinnedToCore(&onTimer, "inputthread", 4096, NULL, 2, NULL, 0);
-//  timer = timerBegin(0, 80, true);                //Begin timer with 1 MHz frequency (80MHz/80)
-//  timerAttachInterrupt(timer, &onTimer, true);   //Attach the interrupt to Timer1
-//  unsigned int timerFactor = 1000000/SAMPLERATE; //Calculate the time interval between two readings, or more accurately, the number of cycles between two readings
-//  timerAlarmWrite(timer, timerFactor, true);      //Initialize the timer
-//  timerAlarmEnable(timer); 
+  ledcWrite(0, 0);
+  TaskHandle_t th;
+  xTaskCreatePinnedToCore(&setupSoundTimer, "soundThread", 4096, NULL, 0, &th, 0);
 }
-
-
-
-
-
-
-
-
 
 
 
 void setup(void)
 {
   Serial.begin(115200);
-  rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);        
+  rtc_clk_cpu_freq_set(RTC_CPU_FREQ_240M);
   setupWiFi_by_manager();
   setupOTA();
   display.begin();
-  c64_Init();  
+  c64_Init();
   setupSound();
   startWebServer();
   logFreeHeap();
@@ -390,59 +276,28 @@ long start = 0;
 
 void loop(void)
 {
-//  while(true) {
-//    rtc_wdt_feed();
+  //  while(true) {
+  //    rtc_wdt_feed();
   ArduinoOTA.handle();
-  
- 
-  for (int n=0; n<100; n++) {
+
+
+  for (int n = 0; n < 100; n++) {
     c64_Step();
+    vicSpeed++;
 
-//    AudioPlaySID playSid = c64_PlaySid();
-//    cycle_count delta_t = playSid.csdelta;
-//    playSid.sidptr->clock(delta_t);
-//    samples[sampleW%BUFFER_SIZE]=(unsigned char)((playSid.sidptr->output()>>8)+127);
-
-     
-     vicSpeed++;
-//     if (sampleW>255) sampleW=0;
-  //   ledcWrite(0, (unsigned char)();
-//     ledcWrite(0, (unsigned char)(playSid.sidptr->output()>>8));
-
-
-    if (vicSpeed%10000==0) {
-      int freq = (1000.0/(millis()-start))*10000;
-      start=millis();
-      Serial.printf("vicSpeed %d freq %d\n", vicSpeed,freq);
-      
+    if (vicSpeed % 10000 == 0) {
+      int freq = (1000.0 / (millis() - start)) * 10000;
+      start = millis();
+      Serial.printf("vicSpeed %d freq %d\n", vicSpeed, freq);
     }
-//  }
   }
-
-
-//  timer = timerBegin(0, 80, true);                //Begin timer with 1 MHz frequency (80MHz/80)
-//  timerAttachInterrupt(timer, &c64step, true);   //Attach the interrupt to Timer1
-//  unsigned int timerFactor = 1000000/17000; //Calculate the time interval between two readings, or more accurately, the number of cycles between two readings
-//  timerAlarmWrite(timer, timerFactor, true);      //Initialize the timer
-//  timerAlarmEnable(timer); 
-//  
-//  
-//  main_step();
-//  printf("%d\n",(int)((esp_timer_get_time()-t)/1000));  
-} 
-
-//void c64step() {
-//  unsigned long t = esp_timer_get_time();
-//  c64_Step();
-//}
-
-void logFreeHeap() {
-   #ifdef use_lib_log_serial  
-  Serial.printf("FREE HEAP: %d BYTES\n", ESP.getFreeHeap()); 
- #endif 
 }
 
-
+void logFreeHeap() {
+#ifdef use_lib_log_serial
+  Serial.printf("FREE HEAP: %d BYTES\n", ESP.getFreeHeap());
+#endif
+}
 
 
 
@@ -508,28 +363,28 @@ void configureWebServer() {
   server->on("/type", HTTP_GET, [](AsyncWebServerRequest * request) {
     Serial.println("incoming request");
     String logmessage = "Client:" + request->client()->remoteIP().toString() + + " " + request->url();
-//    if (checkUserWebAuth(request)) {
-      logmessage += " Auth: Success";
-      Serial.println(logmessage);
-//      int paramsNr = request->params();
-//      Serial.println(paramsNr);
+    //    if (checkUserWebAuth(request)) {
+    logmessage += " Auth: Success";
+    Serial.println(logmessage);
+    //      int paramsNr = request->params();
+    //      Serial.println(paramsNr);
 
-     if (request->hasParam("text"))
+    if (request->hasParam("text"))
     {
-          String message = request->getParam("text")->value();
-          message.toUpperCase();
-//          String stringOne = "A string";
-//          Serial.println(message);
-          char Buf[message.length()];
-          message.toCharArray(Buf, message.length()+1);
-//          cmd = message;
-//          cr=0;
+      String message = request->getParam("text")->value();
+      message.toUpperCase();
+      //          String stringOne = "A string";
+      //          Serial.println(message);
+      char Buf[message.length()];
+      message.toCharArray(Buf, message.length() + 1);
+      //          cmd = message;
+      //          cr=0;
       c64_Type(&Buf[0]);
     }
-      
 
-      
-      request->send_P(200, "text/html", "");
+
+
+    request->send_P(200, "text/html", "");
 
 
   });
@@ -541,9 +396,9 @@ void configureWebServer() {
       request->send(200, "text/html");
       logmessage += " Auth: Success";
       Serial.println(logmessage);
-//      shouldReboot = true;
+      //      shouldReboot = true;
       c64_Init();
-//      ESP.restart();
+      //      ESP.restart();
 
     } else {
       logmessage += " Auth: Failed";
@@ -634,36 +489,36 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
     if (!index) {
       logmessage = "Upload Start: " + String(filename);
       // open the file on first call and store the file handle in the request object
-//      request->_tempFile = SPIFFS.open("/" + filename, "w");
+      //      request->_tempFile = SPIFFS.open("/" + filename, "w");
       Serial.println(logmessage);
     }
 
     if (len) {
       // stream the incoming chunk to the opened file
-//      request->_tempFile.write(data, len);
+      //      request->_tempFile.write(data, len);
       logmessage = "Writing file: " + String(filename) + " index=" + String(index) + " len=" + String(len);
       Serial.println(logmessage);
-      for (int n=0; n<len; n++) {  
+      for (int n = 0; n < len; n++) {
 
-        
+
         // srart is 2049, first 2 in prg are address 16 bit to which upload/ usually 2049
-        if (n+index<2) continue;
-        
-        
-        cpu.RAM[2047+n+index]=data[n];
+        if (n + index < 2) continue;
+
+
+        cpu.RAM[2047 + n + index] = data[n];
         rtc_wdt_feed();
       }
-      
+
     }
 
     if (final) {
       logmessage = "Upload Complete: " + String(filename) + ",size: " + String(index + len);
       // close the file handle as the upload is now done
-//      request->_tempFile.close();
+      //      request->_tempFile.close();
       Serial.println(logmessage);
-//      cmd=String("run\r");
-//      cr=0;
-//      request->redirect("/");
+      //      cmd=String("run\r");
+      //      cr=0;
+      //      request->redirect("/");
     }
   } else {
     Serial.println("Auth: Failed");
