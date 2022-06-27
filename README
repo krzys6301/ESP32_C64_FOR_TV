@@ -31,13 +31,12 @@ bitluni esp32 composite out
 without the above projects it wouldn't exist, if you see your open source work in this project and you're not enlisted please let me know, so I can add you here for the fame, thanks and record :)
 
 TODO:
--- check if joystick works
 -- add maybe other formats than *.PRG
 -- make the emulation faster
 -- improve the web console as it sometimes leads the restart of ESP32
 -- maybe implement joyPort select (1 or 2) via some jumper on a esp32 pin?
 -- any other idea is welcomed
-
+-- check if joystick works with game "Boulder Dash (J1).prg", with others it works
 
 I've tested it with an excellent set of C64 games, that I've downloaded form https://www.lemon64.com/forum/viewtopic.php?t=76305
 There path for the *.PRG that works with this simulator is: OneLoad64-Games-Collection-v3\PRGs\Crunched\*.PRG
