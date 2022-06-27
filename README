@@ -15,6 +15,8 @@ jostick pins:
 #define JOY_1_right   4
 #define JOY_1_fire    17
 
+there is only one joystick joy1 defined, pin 23 is to swap if it is connectet to port for joy1 or joy2.
+
 I compiled it with arduino 1.8.19 and esp 32 board installed from https://dl.espressif.com/dl/package_esp32_index.json
 
 There are definitively some bugs there, the speed is probably somwhere at 80% of the orginall C64, the vic.cpp is probably the slowest part depending on the screen mode, maybe there are some techniques which I'm not aware of to improve the speed of emulation.
@@ -33,7 +35,6 @@ TODO:
 -- add maybe other formats than *.PRG
 -- make the emulation faster
 -- improve the web console as it sometimes leads the restart of ESP32
--- fix OTA, so it can work together with sound
 -- maybe implement joyPort select (1 or 2) via some jumper on a esp32 pin?
 -- any other idea is welcomed
 
