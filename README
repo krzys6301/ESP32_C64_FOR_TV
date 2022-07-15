@@ -1,8 +1,9 @@
-THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE 
+THERE IS ABSOLUTELY NO WARRANTY FOR THIS SOFTWARE, I'M NOT RESPONSIBLE FOR ANY DAMAGE IT CAN CAUSE EITHER BY PROPER USE OR IMPROPER USE, YOU USE IT AT YOUR OWN RISK AND RESPONSIBILITY, have fun :)
 
 ![Alt text](/PHOTO/IMG_20220617_014104.jpg?raw=true "work in progress")
 
-This is an C64 simulator that runs on single esp32 board, pin 25 is NTSC composite output and pin 18 is audio.
+This is an C64 simulator that runs on single esp32 board,
+It can be directly connected to the composite input of the TV - pin 25 is NTSC composite output and pin 18 is audio.
 There is an async http server accessible at port 80, which allows to upload a *.PRG file, and execute some commands on the C64 "console" screen, eg. issue RUN or LIST command.
 There is WiFi manager installed, so after first boot you need to connect to wifi network "EPS_32" and setup the WiFi pass and ssid for your WIFi connection, if the esp remembers a wifi network from your previous project then it will most likely connect autmatically.
 There is also OTA for over-the-air updates - handy for quick testing.
