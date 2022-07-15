@@ -23,12 +23,13 @@ I compiled it with arduino 1.8.19 and esp32 board installed from https://dl.espr
 
 There are definitively some bugs there, the speed is probably somwhere at 80% of the orginall C64, the vic.cpp is probably the slowest part depending on the screen mode, maybe there are some techniques which I'm not aware of to improve the speed of emulation.
 Everyone is welcomed to do some improvements, that's the reason I push this software to git.
-This project uses brilliant solutions from several other projects: 
+This project uses solutions from several other brilliant projects: 
 reSID (https://github.com/simonowen/resid)
 espMCUME (https://github.com/Jean-MarcHarvengt/espMCUME)
 AsyncHttpServer for ESP32 (https://github.com/me-no-dev/ESPAsyncWebServer)
 esp_8_bit (https://github.com/rossumur/esp_8_bit)
 bitluni esp32 composite out (https://github.com/bitluni/ESP32CompositeVideo)
+BIG THANKS FOR AUTHORS OF ALL THE ABOVE PROJECTS FOR THEIR WORK AND THAT THEY SHARED IT WITH THE WORLD, YOUR WORK IS AWESOME!!!
 
 without the above projects this one wouldn't probably exist, if you see your open source work in this project and you're not enlisted please let me know, so I can add you here for the fame, thanks and record :)
 
